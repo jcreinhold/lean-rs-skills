@@ -2,12 +2,13 @@
 # audit-rust.sh — Analyze a Rust module or crate for depth and surface area.
 #
 # Normally invoked via the language dispatcher
+#   bash skills/deep-module-design/scripts/audit-module.sh <path>
 #   bash ${CLAUDE_PLUGIN_ROOT}/skills/deep-module-design/scripts/audit-module.sh <path>
 # but can be run directly:
 #
-#   bash ${CLAUDE_PLUGIN_ROOT}/skills/deep-module-design/scripts/audit-rust.sh <path>
-#   bash ${CLAUDE_PLUGIN_ROOT}/skills/deep-module-design/scripts/audit-rust.sh crates/kernel/core-ast
-#   bash ${CLAUDE_PLUGIN_ROOT}/skills/deep-module-design/scripts/audit-rust.sh crates/frontend/elaboration/src/resolve.rs
+#   bash skills/deep-module-design/scripts/audit-rust.sh <path>
+#   bash skills/deep-module-design/scripts/audit-rust.sh crates/kernel/core-ast
+#   bash skills/deep-module-design/scripts/audit-rust.sh crates/frontend/elaboration/src/resolve.rs
 #
 # What it checks:
 #   1. Public surface area (pub items) vs total items

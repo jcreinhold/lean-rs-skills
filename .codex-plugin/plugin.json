@@ -1,0 +1,40 @@
+{
+  "name": "lean-rs-skills",
+  "version": "0.1.0",
+  "description": "Generic Rust + Lean 4 craft skills: deep-module design, performance, testing, technical writing, and macros.",
+  "author": {
+    "name": "Jacob Reinhold",
+    "email": "5241441+jcreinhold@users.noreply.github.com",
+    "url": "https://github.com/jcreinhold"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/jcreinhold/lean-rs-skills",
+  "repository": "https://github.com/jcreinhold/lean-rs-skills",
+  "keywords": [
+    "rust",
+    "lean4",
+    "skills",
+    "performance",
+    "testing",
+    "technical-writing",
+    "macros"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Lean/Rust Skills",
+    "shortDescription": "Reusable Rust and Lean engineering skills",
+    "longDescription": "Project-independent skills for Rust, Lean 4, performance work, test engineering, technical writing, and Rust macro design.",
+    "developerName": "Jacob Reinhold",
+    "category": "Productivity",
+    "capabilities": [
+      "Write"
+    ],
+    "websiteURL": "https://github.com/jcreinhold/lean-rs-skills",
+    "defaultPrompt": [
+      "Review this Rust API design.",
+      "Profile this Lean proof.",
+      "Improve this technical writing."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

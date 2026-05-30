@@ -2,6 +2,7 @@
 # audit-module.sh — Dispatch a module audit to the right language backend.
 #
 # Usage:
+#   bash skills/deep-module-design/scripts/audit-module.sh <path>
 #   bash ${CLAUDE_PLUGIN_ROOT}/skills/deep-module-design/scripts/audit-module.sh <path>
 #
 # Selection rules:

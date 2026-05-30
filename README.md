@@ -1,8 +1,8 @@
 # lean-rs-skills
 
-A Claude Code plugin bundling a set of generic **Rust + Lean 4 craft skills** — the kind of reusable,
-project-independent guidance you want available in every systems / formal-methods project instead of copy-pasting
-`.claude/skills/` between repos.
+A Codex and Claude Code plugin bundling a set of generic **Rust + Lean 4 craft skills** — the kind of reusable,
+project-independent guidance you want available in every systems / formal-methods project instead of copy-pasting skills
+between repos.
 
 Each skill is self-contained under `skills/<name>/`: a lean `SKILL.md` plus `references/` for depth. Two skills
 (`deep-module-design`, `technical-writing`) also bundle helper agents under `skills/<name>/agents/` that the skill
@@ -23,14 +23,26 @@ Skills trigger automatically when your request matches their description; you do
 
 ## Installation
 
-### Via marketplace (recommended)
+### Codex
+
+This repo is a Codex plugin through `.codex-plugin/plugin.json`. For local development, validate the plugin from the
+repo root with:
+
+```bash
+uv run --with pyyaml /Users/jcreinhold/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+```
+
+To expose it through a Codex marketplace, add a marketplace entry that points at this repo as the plugin source. Keep
+the marketplace file outside the shared skill content unless you are intentionally publishing a repo/team marketplace.
+
+### Claude Code marketplace
 
 ```
 /plugin marketplace add jcreinhold/lean-rs-skills
 /plugin install lean-rs-skills@lean-rs-skills
 ```
 
-### Local testing
+### Claude Code local testing
 
 ```
 claude --plugin-dir ~/Code/lean-rs-skills

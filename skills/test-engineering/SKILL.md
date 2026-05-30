@@ -30,8 +30,11 @@ Before writing or changing tests, name the pressure:
 If the pressure is unclear, run the audit script first:
 
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/skills/test-engineering/scripts/audit-test-surface.sh <path>
+bash skills/test-engineering/scripts/audit-test-surface.sh <path>
 ```
+
+Run this from the plugin root. In Claude Code, `${CLAUDE_PLUGIN_ROOT}/skills/...` is also valid when you are outside the
+plugin root.
 
 ## Core Design Principles
 

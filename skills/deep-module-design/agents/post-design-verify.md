@@ -19,8 +19,11 @@ different.
 1. **Run the audit script on the changed module.**
 
     ```bash
-    bash ${CLAUDE_PLUGIN_ROOT}/skills/deep-module-design/scripts/audit-module.sh <path>
+    bash skills/deep-module-design/scripts/audit-module.sh <path>
     ```
+
+    Run this from the plugin root. In Claude Code, `${CLAUDE_PLUGIN_ROOT}/skills/...` is also valid when you are outside
+    the plugin root.
 
 1. **Compare before and after.** If the pre-design audit produced a constraint set, compare against it. Check:
 

@@ -21,8 +21,11 @@ constraints that prevent the design from getting worse.
 1. **Run the audit script.**
 
     ```bash
-    bash ${CLAUDE_PLUGIN_ROOT}/skills/deep-module-design/scripts/audit-module.sh <path>
+    bash skills/deep-module-design/scripts/audit-module.sh <path>
     ```
+
+    Run this from the plugin root. In Claude Code, `${CLAUDE_PLUGIN_ROOT}/skills/...` is also valid when you are outside
+    the plugin root.
 
     The dispatcher auto-selects the Rust or Lean backend based on the target's extension and project layout. Record the
     output. Note the depth estimate (LOC / public items) and any warnings.

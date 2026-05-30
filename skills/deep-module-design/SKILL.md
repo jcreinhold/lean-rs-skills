@@ -68,9 +68,10 @@ Before editing, name the design pressure you face:
 | **Temporal coupling** | API requires callers to call methods in a specific order without structural enforcement |
 | **Information loss** | Abstraction discards information callers need, forcing them to reconstruct it |
 
-If the pressure is unclear, run the audit script first:
-`bash ${CLAUDE_PLUGIN_ROOT}/skills/deep-module-design/scripts/audit-module.sh <path>`. The dispatcher selects the Rust
-backend by file extension and project layout.
+If the pressure is unclear, run the audit script first from the plugin root:
+`bash skills/deep-module-design/scripts/audit-module.sh <path>`. The dispatcher selects the Rust backend by file
+extension and project layout. In Claude Code, `${CLAUDE_PLUGIN_ROOT}/skills/...` is also valid when you are outside the
+plugin root.
 
 ## Core Design Principles
 
@@ -378,7 +379,7 @@ is ready:
 
 **Depth check:**
 
-- [ ] Audit script run: `bash ${CLAUDE_PLUGIN_ROOT}/skills/deep-module-design/scripts/audit-module.sh <path>`.
+- [ ] Audit script run from the plugin root: `bash skills/deep-module-design/scripts/audit-module.sh <path>`.
 - [ ] Depth estimate (LOC / public items) improved or held vs the pre-change run, _or_ you can name what new capability
     justifies the surface growth.
 - [ ] No new complecting (each new public type handles one independently-varying concern).
