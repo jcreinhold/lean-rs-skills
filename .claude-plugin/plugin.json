@@ -1,0 +1,21 @@
+{
+  "name": "lean-rs-skills",
+  "version": "0.1.0",
+  "description": "Generic Rust + Lean 4 craft skills: deep-module design, performance (Rust & Lean), testing, technical writing, and macros.",
+  "author": {
+    "name": "Jacob Reinhold",
+    "email": "5241441+jcreinhold@users.noreply.github.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/jcreinhold/lean-rs-skills",
+  "repository": "https://github.com/jcreinhold/lean-rs-skills",
+  "keywords": [
+    "rust",
+    "lean4",
+    "skills",
+    "performance",
+    "testing",
+    "technical-writing",
+    "macros"
+  ]
+}

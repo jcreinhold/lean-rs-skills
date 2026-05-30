@@ -1,0 +1,14 @@
+{
+  "name": "lean-rs-skills",
+  "owner": {
+    "name": "Jacob Reinhold",
+    "email": "5241441+jcreinhold@users.noreply.github.com"
+  },
+  "plugins": [
+    {
+      "name": "lean-rs-skills",
+      "source": "./",
+      "description": "Generic Rust + Lean 4 craft skills: deep-module design, performance (Rust & Lean), testing, technical writing, and macros."
+    }
+  ]
+}
