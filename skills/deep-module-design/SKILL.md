@@ -69,8 +69,8 @@ Before editing, name the design pressure you face:
 | **Information loss** | Abstraction discards information callers need, forcing them to reconstruct it |
 
 If the pressure is unclear, run the audit script first:
-`bash ${CLAUDE_PLUGIN_ROOT}/skills/deep-module-design/scripts/audit-module.sh <path>`. The dispatcher selects the Rust backend
-by file extension and project layout.
+`bash ${CLAUDE_PLUGIN_ROOT}/skills/deep-module-design/scripts/audit-module.sh <path>`. The dispatcher selects the Rust
+backend by file extension and project layout.
 
 ## Core Design Principles
 
@@ -391,8 +391,8 @@ is ready:
 **Language gate:**
 
 - Rust: `cargo clippy -p <crate>` and `cargo nextest run -p <crate>`.
-- Lean 4: run `lake build` in the Lean package. The `lean-lsp` MCP tools (`lean_build`,
-  `lean_diagnostic_messages`, `lean_goal`) are the fast inner loop during iteration.
+- Lean 4: run `lake build` in the Lean package. The `lean-lsp` MCP tools (`lean_build`, `lean_diagnostic_messages`,
+  `lean_goal`) are the fast inner loop during iteration.
 
 If any box doesn't tick, the design isn't done — fix the design, don't relax the box.
 

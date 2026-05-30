@@ -199,5 +199,5 @@ When the correct answer is a bench or profiling guardrail rather than a correctn
 ## Related Skills
 
 - `optimizing-rust-performance` when the missing guardrail is a bench or profile, not a correctness test
-- `deep-module-design` when the test problem is really a module-boundary problem (tests coupled to internals because
-  the interface is the wrong shape)
+- `deep-module-design` when the test problem is really a module-boundary problem (tests coupled to internals because the
+  interface is the wrong shape)

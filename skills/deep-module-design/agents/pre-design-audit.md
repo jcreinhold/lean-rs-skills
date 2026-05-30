@@ -42,8 +42,8 @@ constraints that prevent the design from getting worse.
    handles. Flag any type that handles more than one independently-varying concern.
 
 1. **Check for complecting patterns.** If the changed files are Rust, read `references/rust-patterns.md`; if Lean 4,
-   read `references/lean4-patterns.md`. For Lean changes, also remind yourself of the Lean-side `AGENTS.md` — and load
-   a dedicated proof-writing workflow if proof obligations are involved. Look for:
+   read `references/lean4-patterns.md`. For Lean changes, also remind yourself of the Lean-side `AGENTS.md` — and load a
+   dedicated proof-writing workflow if proof obligations are involved. Look for:
 
     - State + identity braided
     - Mechanism + policy braided

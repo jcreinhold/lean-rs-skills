@@ -13,10 +13,11 @@ Improve prose for clarity and precision. Do not change the meaning.
 Before touching the text, read the references that set the standard:
 
 - `${CLAUDE_PLUGIN_ROOT}/skills/technical-writing/references/on-writing.md` — always
-- `${CLAUDE_PLUGIN_ROOT}/skills/technical-writing/references/on-writing-mathematics.md` — when the text carries mathematical content
+- `${CLAUDE_PLUGIN_ROOT}/skills/technical-writing/references/on-writing-mathematics.md` — when the text carries
+  mathematical content
 
-If the task turns into theorem-proof block design, proof decomposition, or proof repair, stop and use
-a dedicated proof-writing workflow instead.
+If the task turns into theorem-proof block design, proof decomposition, or proof repair, stop and use a dedicated
+proof-writing workflow instead.
 
 ## Read the text
 
