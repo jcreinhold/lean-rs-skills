@@ -3,6 +3,20 @@
 These are not cargo-cult recipes. They are decision rules distilled from Rust performance references and strong Rust
 codebases.
 
+## Table of Contents
+
+1. [From The Rust Performance Book](#from-the-rust-performance-book)
+1. [From Criterion.rs](#from-criterionrs)
+1. [From DHAT](#from-dhat)
+1. [From rustc, measureme, And rustc-perf](#from-rustc-measureme-and-rustc-perf)
+1. [From rust-analyzer](#from-rust-analyzer)
+1. [From ripgrep](#from-ripgrep)
+1. [From regex-automata](#from-regex-automata)
+1. [From hashbrown](#from-hashbrown)
+1. [External Sources Used](#external-sources-used)
+
+---
+
 ## From The Rust Performance Book
 
 - Profile before optimizing. Hot paths are frequently not where intuition points.

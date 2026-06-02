@@ -3,6 +3,19 @@
 These are the bottleneck classes that repeatedly matter in compiler-style Rust codebases. Each section names the class,
 lists the patterns to grep for, and calls out the typical failures inside that class.
 
+## Table of Contents
+
+1. [Arena And Phase-Local Allocation](#arena-and-phase-local-allocation)
+1. [Normalization, Evaluation, And Read-Back](#normalization-evaluation-and-read-back)
+1. [Traversal Cost](#traversal-cost)
+1. [Typechecker, Unifier, Constraint Queue, Metas](#typechecker-unifier-constraint-queue-metas)
+1. [Registry, Metadata, Side Tables, Cache Lookups](#registry-metadata-side-tables-cache-lookups)
+1. [Closure Capture And Environment Representation](#closure-capture-and-environment-representation)
+1. [Pipeline Throughput And Pass Boundaries](#pipeline-throughput-and-pass-boundaries)
+1. [Persistent Structures And Immutable Data](#persistent-structures-and-immutable-data)
+
+---
+
 ## Arena And Phase-Local Allocation
 
 Start here when you see many short-lived vectors, slices, or strings.

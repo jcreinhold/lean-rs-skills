@@ -17,10 +17,9 @@ Help the reader understand. Everything else serves that.
 
 ## When not to use
 
-- Formal proof writing, theorem-proof blocks, or proof decomposition — use a dedicated proof-writing workflow
-- Adversarial proof review — use `mathematical-proof-review`
-- `goal.md` or stable `proposal.md` when the mathematical center is being set or revised, not just its prose — use
-  `mathematical-conjecture-design`
+- Formal proof writing, theorem-proof blocks, or proof decomposition
+- Adversarial review of a finished proof
+- Setting or revising the mathematical center of a piece of work, rather than the prose that surrounds it
 
 ## What to read first
 
@@ -38,7 +37,7 @@ These are the baseline. Local convenience does not override them.
 ### Edit (default)
 
 1. Read the target text and enough surrounding context to know what must not change — the relevant `AGENTS.md`, the
-   local `README.md` or `goal.md`, adjacent definitions or theorems.
+   local `README.md`, adjacent definitions or theorems.
 1. Read the references above.
 1. Identify the audience and the purpose. A docstring serves callers; a design doc serves reviewers; a commit message
    serves the next person who blames the line.

@@ -75,7 +75,8 @@ cargo expand                  # expand all macros
 cargo expand module::name     # expand specific module
 ```
 
-**Always check `cargo expand` output** before considering a macro done.
+**Check `cargo expand` output before considering a macro done** — expansion bugs are invisible in the source and only
+surface in the generated code.
 
 For `macro_rules!` on nightly: `trace_macros!(true)` before invocation. For proc macros:
 `eprintln!("GENERATED:\n{}", output)` in the impl function.
@@ -87,7 +88,6 @@ For `macro_rules!` on nightly: `trace_macros!(true)` before invocation. For proc
 1. **Ignoring follow-set restrictions.** `$x:expr` can only be followed by `=>`, `,`, `;`.
 1. **Repeated side effects.** `$x:expr` used twice = expression evaluated twice. Bind to `let` first.
 1. **Missing `$crate::`** in exported macros.
-1. **Skipping `cargo expand`.** Always verify expansion.
 1. **Using `panic!` in proc macros.** Use `syn::Error::new_spanned()`.
 1. **Fragment opacity.** `$x:expr` passed to another macro becomes opaque. Use `$($x:tt)*` for re-parsing.
 

@@ -18,8 +18,8 @@ Before touching the text, read the references that set the standard:
 Read these paths from the plugin root. In Claude Code, `${CLAUDE_PLUGIN_ROOT}/skills/...` is also valid when you are
 outside the plugin root.
 
-If the task turns into theorem-proof block design, proof decomposition, or proof repair, stop and use a dedicated
-proof-writing workflow instead.
+If the task turns into theorem-proof block design, proof decomposition, or proof repair, stop — that is outside the
+scope of prose editing.
 
 ## Read the text
 

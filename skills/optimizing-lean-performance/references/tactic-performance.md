@@ -2,6 +2,18 @@
 
 How to choose fast tactics and avoid common performance traps.
 
+## Table of Contents
+
+1. [Tactic Selection Order](#tactic-selection-order)
+1. [Simp Discipline](#simp-discipline)
+1. [Typeclass Synthesis](#typeclass-synthesis)
+1. [Expensive `rfl`](#expensive-rfl)
+1. [Mutual-Inductive Proofs](#mutual-inductive-proofs)
+1. [`nontriviality` and Other Slow Tactics](#nontriviality-and-other-slow-tactics)
+1. [Avoiding Exponential Blowup](#avoiding-exponential-blowup)
+
+---
+
 ## Tactic Selection Order
 
 When multiple tactics can close a goal, prefer the cheapest one. This ordering reflects actual cost, not generality:

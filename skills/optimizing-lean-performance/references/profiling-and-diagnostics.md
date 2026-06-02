@@ -2,6 +2,19 @@
 
 How to find the bottleneck in slow Lean 4 code. Always start here before applying fixes.
 
+## Table of Contents
+
+1. [Diagnostics Mode (Start Here)](#diagnostics-mode-start-here)
+1. [Heartbeat Counting](#heartbeat-counting)
+1. [Wall-Clock Profiler](#wall-clock-profiler)
+1. [Tactic-Level Trace Profiler](#tactic-level-trace-profiler)
+1. [Firefox Profiler Integration](#firefox-profiler-integration)
+1. [Targeted Trace Options](#targeted-trace-options)
+1. [Simp Loop Detection](#simp-loop-detection)
+1. [Profiling Workflow](#profiling-workflow)
+
+---
+
 ## Diagnostics Mode (Start Here)
 
 The single most useful option for performance triage:

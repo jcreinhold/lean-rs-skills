@@ -26,9 +26,7 @@
     "longDescription": "Project-independent skills for Rust, Lean 4, performance work, test engineering, technical writing, and Rust macro design.",
     "developerName": "Jacob Reinhold",
     "category": "Productivity",
-    "capabilities": [
-      "Write"
-    ],
+    "capabilities": ["Write"],
     "websiteURL": "https://github.com/jcreinhold/lean-rs-skills",
     "defaultPrompt": [
       "Review this Rust API design.",

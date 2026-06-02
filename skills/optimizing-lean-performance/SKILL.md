@@ -91,8 +91,9 @@ From fastest to slowest — prefer the cheapest tactic that closes the goal:
 | `simp` | Slow | Full database search |
 | `aesop` | Slow | Best-first proof search |
 
-When a proof needs `simp` or `aesop` during exploration, always extract the explicit result with `simp?` or `aesop?`
-before committing.
+When a proof needs `simp` or `aesop` during exploration, extract the explicit result with `simp?` or `aesop?` before
+committing — the explicit lemma list is faster (it skips the discrimination-tree database scan) and stays stable across
+mathlib versions, where a bare `simp` can silently change behavior.
 
 ## Key Options Reference
 

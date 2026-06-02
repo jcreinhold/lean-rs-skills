@@ -2,6 +2,18 @@
 
 Use this order. Do not skip ahead.
 
+## Table of Contents
+
+1. [1. Define The Workload](#1-define-the-workload)
+1. [2. Establish A Baseline](#2-establish-a-baseline)
+1. [3. Localize The Bottleneck](#3-localize-the-bottleneck)
+1. [4. Choose The Intervention Level](#4-choose-the-intervention-level)
+1. [5. Re-Measure](#5-re-measure)
+1. [6. Stop Conditions](#6-stop-conditions)
+1. [Failure Smells](#failure-smells)
+
+---
+
 ## 1. Define The Workload
 
 Pick the workload that matches the user-visible complaint.

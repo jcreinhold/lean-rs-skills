@@ -49,8 +49,7 @@ Every skill lives under `skills/<name>/` and follows the same layout:
 - `agents/*.md` — optional dispatchable sub-agents (only `deep-module-design` and `technical-writing` have these). The
   `SKILL.md` invokes them by relative path.
 - `scripts/*.sh` — optional audit/helper scripts (only `deep-module-design` and `test-engineering` have these).
-- `evals/evals.json` — optional eval suite (only `deep-module-design` has one): `{skill_name, evals: [{id, prompt,
-  expected_output, files}]}`.
+- `evals/evals.json` — eval suite (every skill has one): `{skill_name, evals: [{id, prompt, expected_output, files}]}`.
 
 ### Referencing bundled files from a SKILL.md
 

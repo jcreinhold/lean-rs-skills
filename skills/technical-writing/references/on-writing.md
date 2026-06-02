@@ -1,5 +1,29 @@
 # On Writing Well
 
+## Table of Contents
+
+- [On Writing Well](#on-writing-well) — universal prose craft
+- [Technical Documentation](#technical-documentation)
+  - [Show before you explain](#show-before-you-explain)
+  - [Title for the task, not the tool](#title-for-the-task-not-the-tool)
+  - [Document the why](#document-the-why)
+  - [Put the common case first](#put-the-common-case-first)
+  - [Be consistent](#be-consistent)
+  - [Show the error cases](#show-the-error-cases)
+  - [Warn about gotchas up front](#warn-about-gotchas-up-front)
+  - [Be precise without being pedantic](#be-precise-without-being-pedantic)
+  - [Use concrete types in examples](#use-concrete-types-in-examples)
+  - [Disclose progressively](#disclose-progressively)
+- [Comments](#comments)
+  - [Interface comments are for callers](#interface-comments-are-for-callers)
+  - [Implementation comments are for the next reader of the code](#implementation-comments-are-for-the-next-reader-of-the-code)
+  - [Be precise](#be-precise)
+  - [Capture rationale](#capture-rationale)
+  - [Write comments first](#write-comments-first)
+  - [Maintain comments as the code changes](#maintain-comments-as-the-code-changes)
+
+---
+
 Good writing is clear thinking made visible.
 
 The hardest part isn't choosing words. It's knowing what you mean. Most bad prose is bad because the writer hadn't yet

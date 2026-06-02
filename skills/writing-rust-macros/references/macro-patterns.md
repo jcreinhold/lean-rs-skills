@@ -1,5 +1,17 @@
 # Rust Macro Patterns Reference
 
+## Table of Contents
+
+1. [Fragment Specifier Reference](#fragment-specifier-reference)
+1. [Repetition Operators](#repetition-operators)
+1. [Architecture: Parse → Emit](#architecture-parse--emit)
+1. [Named Patterns](#named-patterns)
+1. [Known Limitations](#known-limitations)
+1. [Procedural Macros](#procedural-macros)
+1. [Hygiene and Scoping](#hygiene-and-scoping)
+
+---
+
 ## Fragment Specifier Reference
 
 | Specifier | Matches | Follow-set restrictions |

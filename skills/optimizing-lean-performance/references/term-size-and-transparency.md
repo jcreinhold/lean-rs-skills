@@ -2,6 +2,18 @@
 
 How to control proof term size, olean bloat, and unwanted kernel reduction.
 
+## Table of Contents
+
+1. [Why Term Size Matters](#why-term-size-matters)
+1. [Tactics That Produce Large Terms](#tactics-that-produce-large-terms)
+1. [Reducing Term Size](#reducing-term-size)
+1. [Transparency Hierarchy](#transparency-hierarchy)
+1. [Reduction Control Options](#reduction-control-options)
+1. [MetaM Reduction Flags](#metam-reduction-flags)
+1. [Olean Size Diagnostics](#olean-size-diagnostics)
+
+---
+
 ## Why Term Size Matters
 
 Lean stores proof terms in `.olean` files. Large proof terms cause:

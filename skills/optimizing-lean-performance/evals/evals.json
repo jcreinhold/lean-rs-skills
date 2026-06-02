@@ -1,0 +1,35 @@
+{
+  "skill_name": "optimizing-lean-performance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My theorem `add_comm_aux` in `Algebra/Group/Basic.lean` is failing with `(deterministic) timeout at 'whnf', maximum number of heartbeats (200000) has been reached`. Can I just bump maxHeartbeats to 400000 to get it to compile?",
+      "expected_output": "Pushes back on raising maxHeartbeats as the first response. Says to profile first with `set_option diagnostics true in` to find which subsystem (elaboration, simp, typeclass synthesis, kernel reduction) is burning the budget, then fix that. Only after the bottleneck is found and addressed does raising the limit become a legitimate last resort, and never via `maxHeartbeats 0` in committed code.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I have a `simp` call in the middle of a proof about list permutations that takes about 8 seconds on its own. How do I make it faster without breaking the proof?",
+      "expected_output": "Recommends profiling which lemmas fire, then replacing the bare `simp` with `simp only [...]` extracted via `simp?`, because bare simp scans the whole lemma database through discrimination trees. Suggests `dsimp` first if the goal has definitional equalities, checking for a simp loop, and committing the explicit lemma list rather than the bare call. Explains the why (no database scan, stable across mathlib versions).",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Ever since I pulled the latest mathlib, `lake build` on my project takes 20+ minutes even when I've only changed one file. Imports are probably the issue but I'm not sure where to look.",
+      "expected_output": "First says to run `lake exe cache get` after a mathlib pull so precompiled oleans are downloaded rather than rebuilt locally. Then addresses import discipline: import the most specific module instead of a parent barrel, since each unnecessary import drags in transitive instances and simp lemmas. Mentions Lake parallelism and reading the compilation-and-build reference; routes large-build questions there.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "The olean for my `Syntax/Lemmas.lean` file is 40MB, way bigger than its neighbors, and it's slow to import everywhere. What's bloating it and how do I shrink it?",
+      "expected_output": "Points at proof-term size as the likely cause and to the term-size-and-transparency reference. Suggests measuring with olean size diagnostics, factoring large proofs into named helper lemmas (each opaque to the parent), using `omega` for arithmetic instead of large `simp` chains, and considering `noncomputable`/transparency controls. Emphasizes measuring olean size before and after.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "I have a mutual inductive judgment (a typing relation) with about 30 constructors, and elaboration of the lemmas over it is dominated by typeclass synthesis according to the profiler. What can I do?",
+      "expected_output": "Recommends providing explicit instances (a `have` binding or `@[local instance]`) to short-circuit synthesis where the profiler shows it dominating, and tuning `synthInstance.maxHeartbeats`/`maxSize`. Brings in the formalization-specific guidance: prefer `cases` over `induction` on large mutual inductives to avoid motive-synthesis blowup, and split oversized mutual blocks. Stresses measuring with `count_heartbeats in` before and after.",
+      "files": []
+    }
+  ]
+}

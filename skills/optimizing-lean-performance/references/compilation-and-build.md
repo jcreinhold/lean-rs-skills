@@ -2,6 +2,20 @@
 
 How to organize Lean 4 code and Lake builds for fast compilation.
 
+## Table of Contents
+
+1. [Lake Build Parallelism](#lake-build-parallelism)
+1. [Import Discipline](#import-discipline)
+1. [Incremental Compilation](#incremental-compilation)
+1. [Mathlib Caching](#mathlib-caching)
+1. [Lean Reservoir](#lean-reservoir)
+1. [Module Organization Patterns](#module-organization-patterns)
+1. [Compiler Options (for Executable Code)](#compiler-options-for-executable-code)
+1. [Language Server Performance](#language-server-performance)
+1. [Build Time Diagnostics](#build-time-diagnostics)
+
+---
+
 ## Lake Build Parallelism
 
 Lake's unit of compilation is a single `.lean` file. Files that do not depend on each other build in parallel.
