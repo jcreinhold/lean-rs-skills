@@ -5,12 +5,9 @@ description: 'Use for Rust tests: regressions, property tests, integration, comp
 
 # Test Engineering
 
-Good tests increase confidence faster than they increase change cost. The goal is not to increase counts. The goal is to
-stop real bugs from escaping with the smallest, sharpest set of checks.
+Good tests increase confidence faster than they increase change cost. The goal is not to increase counts. The goal is to stop real bugs from escaping with the smallest, sharpest set of checks.
 
-Use this skill to decide what to test, where to test it, and what kind of test surface fits the risk. For
-performance-sensitive work, route to `optimizing-rust-performance` instead of forcing timing logic into correctness
-tests.
+Use this skill to decide what to test, where to test it, and what kind of test surface fits the risk. For performance-sensitive work, route to `optimizing-rust-performance` instead of forcing timing logic into correctness tests.
 
 ## Orient First
 
@@ -33,8 +30,7 @@ If the pressure is unclear, run the audit script first:
 bash skills/test-engineering/scripts/audit-test-surface.sh <path>
 ```
 
-Run this from the plugin root. In Claude Code, `${CLAUDE_PLUGIN_ROOT}/skills/...` is also valid when you are outside the
-plugin root.
+Run this from the plugin root. In Claude Code, `${CLAUDE_PLUGIN_ROOT}/skills/...` is also valid when you are outside the plugin root.
 
 ## Core Design Principles
 
@@ -42,51 +38,37 @@ These are ordered. If two conflict, the earlier one wins.
 
 ### 1. Test contracts and invariants, not implementation steps
 
-A test should answer "what must stay true?" not "what sequence of calls happens today?" If the assertion is about
-control flow, local variable names, or exact intermediate representation without that being the contract, the test is
-too close to the implementation.
+A test should answer "what must stay true?" not "what sequence of calls happens today?" If the assertion is about control flow, local variable names, or exact intermediate representation without that being the contract, the test is too close to the implementation.
 
 ### 2. Test at the highest layer that still isolates the risk
 
-If the bug is a local algebra law, test that local abstraction. If the bug is a user-visible behavior, test the public
-surface. Lower-level tests are cheaper to diagnose. Higher-level tests catch integration mistakes. Choose the narrowest
-layer that still exercises the real contract.
+If the bug is a local algebra law, test that local abstraction. If the bug is a user-visible behavior, test the public surface. Lower-level tests are cheaper to diagnose. Higher-level tests catch integration mistakes. Choose the narrowest layer that still exercises the real contract.
 
 ### 3. Prefer one sharp regression over many vague examples
 
-When fixing a real bug, first add the smallest reproducer that would have caught it. Do not bury it in a giant fixture
-or broad integration test unless the bug only exists in that context.
+When fixing a real bug, first add the smallest reproducer that would have caught it. Do not bury it in a giant fixture or broad integration test unless the bug only exists in that context.
 
 ### 4. Prefer executable oracles and algebraic laws for mathematical code
 
-Mathematical and compiler code often has stronger oracles than example outputs: roundtrips, preservation, monotonicity,
-idempotence, commutation, or agreement with a simpler reference implementation. Use those when they exist.
+Mathematical and compiler code often has stronger oracles than example outputs: roundtrips, preservation, monotonicity, idempotence, commutation, or agreement with a simpler reference implementation. Use those when they exist.
 
-For law-shaped testing, open [test-taxonomy.md](references/test-taxonomy.md) and
-[mathematical-code.md](references/mathematical-code.md).
+For law-shaped testing, open [test-taxonomy.md](references/test-taxonomy.md) and [mathematical-code.md](references/mathematical-code.md).
 
 ### 5. Every "must not hold" rule needs a negative test somewhere
 
-A suite with only positive cases often misses the most dangerous failures. If the system must reject invalid programs,
-preserve opacity, prevent unsound duplication, or avoid illegal state transitions, add a test that proves the bad case
-stays bad.
+A suite with only positive cases often misses the most dangerous failures. If the system must reject invalid programs, preserve opacity, prevent unsound duplication, or avoid illegal state transitions, add a test that proves the bad case stays bad.
 
 ### 6. Keep suites fast enough to run routinely
 
-Slow tests create social pressure to skip them. Use the lightest test surface that catches the bug. Keep property-test
-sizes and case counts justified. If the real risk is latency, allocation, or asymptotic growth, stop and hand off to
-`optimizing-rust-performance`.
+Slow tests create social pressure to skip them. Use the lightest test surface that catches the bug. Keep property-test sizes and case counts justified. If the real risk is latency, allocation, or asymptotic growth, stop and hand off to `optimizing-rust-performance`.
 
 ### 7. Localize helpers and generators
 
-Helpers should remove noise, not hide the assertion. Keep generators, fixtures, and helpers near the abstraction they
-serve unless multiple files genuinely reuse them. Do not build giant `tests/common` utilities that turn tests into
-indirect scripts.
+Helpers should remove noise, not hide the assertion. Keep generators, fixtures, and helpers near the abstraction they serve unless multiple files genuinely reuse them. Do not build giant `tests/common` utilities that turn tests into indirect scripts.
 
 ## Naming Convention
 
-Use contract-first names. Test names should tell the reader what obligation is protected, not what framework happens to
-execute the check.
+Use contract-first names. Test names should tell the reader what obligation is protected, not what framework happens to execute the check.
 
 Treat this as the repo default unless a crate already has a stronger local rule.
 
@@ -94,8 +76,7 @@ Treat this as the repo default unless a crate already has a stronger local rule.
 
 - Use `<area>_<suite>.rs`.
 - Allowed suite suffixes are `laws`, `regressions`, `validation`, `generators`, and `helpers`.
-- Name files by the contract area, not the mechanism. Prefer `binding_coordinates_laws.rs` over
-  `binding_coordinates_proptest.rs`.
+- Name files by the contract area, not the mechanism. Prefer `binding_coordinates_laws.rs` over `binding_coordinates_proptest.rs`.
 - Put property tests and exhaustive tests in `*_laws.rs` when they check laws.
 - Keep generator-only code in `*_generators.rs`.
 - Keep shared test helpers in `*_helpers.rs`, and only when more than one file genuinely reuses them.
@@ -119,17 +100,13 @@ Treat this as the repo default unless a crate already has a stronger local rule.
 Ask these questions in order. Stop at the first "no" and fix that problem.
 
 1. **What bug would escape today?** If you cannot name one, you do not yet know what to test.
-1. **What is the real contract?** State the invariant in one sentence.
-1. **Is there an oracle?** A law, roundtrip, reference solver, or stable public behavior is stronger than ad hoc
-   expected values.
-1. **Is the current test at the right layer?** Move up or down if the present surface is too brittle or too indirect.
-1. **Is this better as a property than an example?** If many examples only restate the same law, replace them with one
-   good property test.
-1. **Is the suite over-coupled to representation?** If a harmless refactor would break the test, the assertion is
-   probably too shallow.
-1. **Is there a missing regression for known bug history?** Fixes without a minimal repro are invitations to regress.
-1. **Would a bench be the right guardrail instead?** If the concern is time, allocation, or scaling, switch to
-   `optimizing-rust-performance`.
+2. **What is the real contract?** State the invariant in one sentence.
+3. **Is there an oracle?** A law, roundtrip, reference solver, or stable public behavior is stronger than ad hoc expected values.
+4. **Is the current test at the right layer?** Move up or down if the present surface is too brittle or too indirect.
+5. **Is this better as a property than an example?** If many examples only restate the same law, replace them with one good property test.
+6. **Is the suite over-coupled to representation?** If a harmless refactor would break the test, the assertion is probably too shallow.
+7. **Is there a missing regression for known bug history?** Fixes without a minimal repro are invitations to regress.
+8. **Would a bench be the right guardrail instead?** If the concern is time, allocation, or scaling, switch to `optimizing-rust-performance`.
 
 ## Working Rules By Context
 
@@ -193,14 +170,11 @@ Run the narrowest credible verification first. Prefer:
 cargo nextest run -p <affected-crate>
 ```
 
-Widen to a workspace-level test run (e.g. `cargo nextest run`, or your project's `make test` target) only when the
-change spans multiple crates or layers.
+Widen to a workspace-level test run (e.g. `cargo nextest run`, or your project's `make test` target) only when the change spans multiple crates or layers.
 
-When the correct answer is a bench or profiling guardrail rather than a correctness test, stop and switch to
-`optimizing-rust-performance`. The handoff rules are in [perf-handoff.md](references/perf-handoff.md).
+When the correct answer is a bench or profiling guardrail rather than a correctness test, stop and switch to `optimizing-rust-performance`. The handoff rules are in [perf-handoff.md](references/perf-handoff.md).
 
 ## Related Skills
 
 - `optimizing-rust-performance` when the missing guardrail is a bench or profile, not a correctness test
-- `deep-module-design` when the test problem is really a module-boundary problem (tests coupled to internals because the
-  interface is the wrong shape)
+- `deep-module-design` when the test problem is really a module-boundary problem (tests coupled to internals because the interface is the wrong shape)

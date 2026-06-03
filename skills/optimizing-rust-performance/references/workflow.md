@@ -5,12 +5,12 @@ Use this order. Do not skip ahead.
 ## Table of Contents
 
 1. [1. Define The Workload](#1-define-the-workload)
-1. [2. Establish A Baseline](#2-establish-a-baseline)
-1. [3. Localize The Bottleneck](#3-localize-the-bottleneck)
-1. [4. Choose The Intervention Level](#4-choose-the-intervention-level)
-1. [5. Re-Measure](#5-re-measure)
-1. [6. Stop Conditions](#6-stop-conditions)
-1. [Failure Smells](#failure-smells)
+2. [2. Establish A Baseline](#2-establish-a-baseline)
+3. [3. Localize The Bottleneck](#3-localize-the-bottleneck)
+4. [4. Choose The Intervention Level](#4-choose-the-intervention-level)
+5. [5. Re-Measure](#5-re-measure)
+6. [6. Stop Conditions](#6-stop-conditions)
+7. [Failure Smells](#failure-smells)
 
 ---
 
@@ -19,10 +19,8 @@ Use this order. Do not skip ahead.
 Pick the workload that matches the user-visible complaint.
 
 - Parser or syntax-only suspicion: use parser-only or parse-stage workloads.
-- Typechecker, evaluator, normalization, or unification suspicion: start with the nearest crate bench, then confirm with
-  a broader frontend workload if the change may affect compile latency.
-- End-to-end compile throughput suspicion: use a pipeline-level bench (`pipeline_bench` or similar) or a shared
-  profiling binary first.
+- Typechecker, evaluator, normalization, or unification suspicion: start with the nearest crate bench, then confirm with a broader frontend workload if the change may affect compile latency.
+- End-to-end compile throughput suspicion: use a pipeline-level bench (`pipeline_bench` or similar) or a shared profiling binary first.
 - Runtime or interpreter suspicion: use an interpreter bench or a backend-specific bench.
 
 Prefer existing workloads over inventing new ones. If nothing credible exists, add one before changing code.
@@ -57,10 +55,8 @@ Match tool to symptom.
 
 - CPU time hot path: Criterion, `profile_*`, `profile.sh`, `cargo flamegraph`, or `profile_with_samply.sh`.
 - Allocation rate or retained heap suspicion: `collect_baseline_full` or a dhat-feature bench.
-- Cache/layout suspicion: inspect sizes, pointer chasing, key choice, and hot/cold field mix after profiling points
-  there.
-- Compile-time code size suspicion in codegen-heavy crates: consider `cargo llvm-lines` only after runtime or throughput
-  profiles point at LLVM/codegen work.
+- Cache/layout suspicion: inspect sizes, pointer chasing, key choice, and hot/cold field mix after profiling points there.
+- Compile-time code size suspicion in codegen-heavy crates: consider `cargo llvm-lines` only after runtime or throughput profiles point at LLVM/codegen work.
 
 Useful commands:
 
@@ -74,19 +70,18 @@ cargo bench -p <crate> --bench <bench> -- --baseline before
 cargo bench -p <crate> --bench <bench> -- --profile-time 10
 ```
 
-Use `--profile-time` when attaching a profiler to Criterion benches so Criterion's own sampling logic does not dominate
-the capture.
+Use `--profile-time` when attaching a profiler to Criterion benches so Criterion's own sampling logic does not dominate the capture.
 
 ## 4. Choose The Intervention Level
 
 Use this order unless the data clearly says otherwise.
 
 1. Remove work: algorithm, invalidation, batching, deduplication, cache scope.
-1. Fix representation: indexed handles, interning, side tables, borrow vs own, environment representation.
-1. Fix allocation strategy: arena, scratch reuse, exact capacity, fewer transient vectors or maps.
-1. Fix layout and locality: contiguous storage, smaller hot structs, hot/cold split, integer keys, branch shape.
-1. Fix hashing or lookup strategy.
-1. Only then consider low-level tuning, build flags, or backend-specific work.
+2. Fix representation: indexed handles, interning, side tables, borrow vs own, environment representation.
+3. Fix allocation strategy: arena, scratch reuse, exact capacity, fewer transient vectors or maps.
+4. Fix layout and locality: contiguous storage, smaller hot structs, hot/cold split, integer keys, branch shape.
+5. Fix hashing or lookup strategy.
+6. Only then consider low-level tuning, build flags, or backend-specific work.
 
 ## 5. Re-Measure
 

@@ -5,13 +5,13 @@ Choose an intervention because the measurements point to it, not because it is a
 ## Table of Contents
 
 1. [1. Remove Work](#1-remove-work)
-1. [2. Representation And Ownership](#2-representation-and-ownership)
-1. [3. Allocation Strategy](#3-allocation-strategy)
-1. [4. Layout And Locality](#4-layout-and-locality)
-1. [5. Hashing, Keying, And Lookup](#5-hashing-keying-and-lookup)
-1. [6. Branch Structure And Cold Paths](#6-branch-structure-and-cold-paths)
-1. [7. Backend And Build-Profile Effects](#7-backend-and-build-profile-effects)
-1. [8. Micro-Optimization](#8-micro-optimization)
+2. [2. Representation And Ownership](#2-representation-and-ownership)
+3. [3. Allocation Strategy](#3-allocation-strategy)
+4. [4. Layout And Locality](#4-layout-and-locality)
+5. [5. Hashing, Keying, And Lookup](#5-hashing-keying-and-lookup)
+6. [6. Branch Structure And Cold Paths](#6-branch-structure-and-cold-paths)
+7. [7. Backend And Build-Profile Effects](#7-backend-and-build-profile-effects)
+8. [8. Micro-Optimization](#8-micro-optimization)
 
 ---
 

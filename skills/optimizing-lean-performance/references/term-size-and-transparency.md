@@ -5,12 +5,12 @@ How to control proof term size, olean bloat, and unwanted kernel reduction.
 ## Table of Contents
 
 1. [Why Term Size Matters](#why-term-size-matters)
-1. [Tactics That Produce Large Terms](#tactics-that-produce-large-terms)
-1. [Reducing Term Size](#reducing-term-size)
-1. [Transparency Hierarchy](#transparency-hierarchy)
-1. [Reduction Control Options](#reduction-control-options)
-1. [MetaM Reduction Flags](#metam-reduction-flags)
-1. [Olean Size Diagnostics](#olean-size-diagnostics)
+2. [Tactics That Produce Large Terms](#tactics-that-produce-large-terms)
+3. [Reducing Term Size](#reducing-term-size)
+4. [Transparency Hierarchy](#transparency-hierarchy)
+5. [Reduction Control Options](#reduction-control-options)
+6. [MetaM Reduction Flags](#metam-reduction-flags)
+7. [Olean Size Diagnostics](#olean-size-diagnostics)
 
 ---
 
@@ -22,8 +22,7 @@ Lean stores proof terms in `.olean` files. Large proof terms cause:
 - Slower language server (more data to load per import).
 - Higher memory usage in the elaborator.
 
-Lean's proof irrelevance means the kernel never _unfolds_ theorem proofs (any two proofs of the same `Prop` are
-definitionally equal). But the terms still exist in the olean and must be loaded and stored.
+Lean's proof irrelevance means the kernel never _unfolds_ theorem proofs (any two proofs of the same `Prop` are definitionally equal). But the terms still exist in the olean and must be loaded and stored.
 
 ## Tactics That Produce Large Terms
 
@@ -39,13 +38,11 @@ definitionally equal). But the terms still exist in the olean and must be loaded
 
 ### Use `omega` for linear arithmetic
 
-`omega` abstracts its proof into an auxiliary definition. The parent theorem references this definition by name, not by
-inlining the proof. This reduced stdlib's `Vector.Extract` olean from 20 MB to 5 MB in one PR.
+`omega` abstracts its proof into an auxiliary definition. The parent theorem references this definition by name, not by inlining the proof. This reduced stdlib's `Vector.Extract` olean from 20 MB to 5 MB in one PR.
 
 ### Use `native_decide` for large decidable computations
 
-Instead of a kernel evaluation trace, the proof term is a single opaque call. Tradeoff: trusts the compiler. Appropriate
-for concrete computations where the mathematical content is clear.
+Instead of a kernel evaluation trace, the proof term is a single opaque call. Tradeoff: trusts the compiler. Appropriate for concrete computations where the mathematical content is clear.
 
 ### Factor proofs into named lemmas
 
@@ -73,13 +70,11 @@ Each helper has its own heartbeat budget, and `big`'s proof term is three name r
 
 ### Use `simp?` and `aesop?` to extract explicit proofs
 
-The `?` variants print the proof term or tactic script. Committing the explicit result avoids re-running search and
-often produces a smaller term.
+The `?` variants print the proof term or tactic script. Committing the explicit result avoids re-running search and often produces a smaller term.
 
 ## Transparency Hierarchy
 
-Lean has a hierarchy that controls when definitions are unfolded. Choosing the right level prevents unnecessary kernel
-work in downstream files.
+Lean has a hierarchy that controls when definitions are unfolded. Choosing the right level prevents unnecessary kernel work in downstream files.
 
 | Keyword / Attribute | Transparency | Unfolded by | Use for |
 | --- | --- | --- | --- |
@@ -97,14 +92,11 @@ Mark a definition `@[irreducible]` when:
 - The definition involves well-founded recursion (unfolding WF defs forces the kernel to reduce termination proofs).
 - The definition is an implementation detail that should not leak into typeclass synthesis or simp.
 
-Since Lean 4.9, functions defined by well-founded recursion are `@[irreducible]` by default. This is intentional — do
-not remove it.
+Since Lean 4.9, functions defined by well-founded recursion are `@[irreducible]` by default. This is intentional — do not remove it.
 
 ### When to use `noncomputable`
 
-Mark a definition `noncomputable` when you do not need to generate executable code. This skips the entire LCNF compiler
-pipeline (code generation, optimization, C emission). For mathematical definitions that exist only for proof purposes,
-this is free performance.
+Mark a definition `noncomputable` when you do not need to generate executable code. This skips the entire LCNF compiler pipeline (code generation, optimization, C emission). For mathematical definitions that exist only for proof purposes, this is free performance.
 
 ## Reduction Control Options
 
@@ -121,8 +113,7 @@ set_option backward.isDefEq.lazyWhnfCore true
 set_option backward.isDefEq.lazyProjDelta true
 ```
 
-These defaults are almost always correct. Override them only when profiling identifies a specific unification
-bottleneck.
+These defaults are almost always correct. Override them only when profiling identifies a specific unification bottleneck.
 
 ## MetaM Reduction Flags
 
@@ -133,8 +124,7 @@ When writing custom tactics or meta-programs, the `Meta.Config` record controls 
 - `zeta` (default true) — eliminate let-bindings
 - `proj` (default `.yesWithDelta`) — reduce structure projections
 
-Setting `iota := false` or `beta := false` in a custom tactic can prevent expensive reduction during pattern matching,
-but breaks normal elaboration. Only use in targeted meta-programs.
+Setting `iota := false` or `beta := false` in a custom tactic can prevent expensive reduction during pattern matching, but breaks normal elaboration. Only use in targeted meta-programs.
 
 ## Olean Size Diagnostics
 
@@ -148,5 +138,4 @@ find .lake/build -name "*.olean" -exec ls -lS {} + | head -20
 ls -la .lake/build/lib/MyProject/MyModule.olean
 ```
 
-If an olean is unexpectedly large (>1 MB for a module with few definitions), suspect `decide` on large inputs or
-unabstracted `simp` chains.
+If an olean is unexpectedly large (>1 MB for a module with few definitions), suspect `decide` on large inputs or unabstracted `simp` chains.

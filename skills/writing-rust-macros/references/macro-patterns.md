@@ -3,12 +3,12 @@
 ## Table of Contents
 
 1. [Fragment Specifier Reference](#fragment-specifier-reference)
-1. [Repetition Operators](#repetition-operators)
-1. [Architecture: Parse → Emit](#architecture-parse--emit)
-1. [Named Patterns](#named-patterns)
-1. [Known Limitations](#known-limitations)
-1. [Procedural Macros](#procedural-macros)
-1. [Hygiene and Scoping](#hygiene-and-scoping)
+2. [Repetition Operators](#repetition-operators)
+3. [Architecture: Parse → Emit](#architecture-parse--emit)
+4. [Named Patterns](#named-patterns)
+5. [Known Limitations](#known-limitations)
+6. [Procedural Macros](#procedural-macros)
+7. [Hygiene and Scoping](#hygiene-and-scoping)
 
 ---
 
@@ -32,11 +32,9 @@
 | `lifetime` | `'a`, `'static`, etc. | Any token |
 | `literal` | `-?` + literal value | Any token |
 
-**Edition variants:** `expr_2021` for pre-2024 `expr` behavior. `pat_param` for pre-2021 `pat` behavior. The relevant
-edition is the one at the `macro_rules!` definition.
+**Edition variants:** `expr_2021` for pre-2024 `expr` behavior. `pat_param` for pre-2021 `pat` behavior. The relevant edition is the one at the `macro_rules!` definition.
 
-**Opacity warning:** Capturing with anything except `ident`, `lifetime`, and `tt` renders the captured AST **opaque** —
-it cannot be further matched in subsequent macro invocations. Use `tt` if cross-macro re-parsing is needed.
+**Opacity warning:** Capturing with anything except `ident`, `lifetime`, and `tt` renders the captured AST **opaque** — it cannot be further matched in subsequent macro invocations. Use `tt` if cross-macro re-parsing is needed.
 
 ## Repetition Operators
 

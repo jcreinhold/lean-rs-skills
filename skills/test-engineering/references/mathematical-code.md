@@ -17,9 +17,9 @@ Reach for:
 Best to worst:
 
 1. simple reference implementation
-1. algebraic law
-1. stable public behavior
-1. curated example outputs
+2. algebraic law
+3. stable public behavior
+4. curated example outputs
 
 If you cannot explain the oracle, you are not ready to write the test.
 

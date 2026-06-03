@@ -7,20 +7,18 @@ description: Use for Rust macros — declarative (macro_rules!) and procedural (
 
 Rust macros eliminate repetitive code that functions and generics cannot abstract.
 
-**Core principle:** Plan the macro architecture before writing a single rule. Decide declarative vs procedural _first_ —
-switching mid-implementation wastes significant effort.
+**Core principle:** Plan the macro architecture before writing a single rule. Decide declarative vs procedural _first_ — switching mid-implementation wastes significant effort.
 
-See `references/macro-patterns.md` in this skill directory for the complete pattern reference (fragment specifiers,
-named patterns, proc macro structure).
+See `references/macro-patterns.md` in this skill directory for the complete pattern reference (fragment specifiers, named patterns, proc macro structure).
 
 ## Workflow
 
 1. **Decide** — Walk the decision flowchart below. Choose `macro_rules!` or proc macro _before_ writing code.
-1. **Plan** — For `macro_rules!`: sketch parse→emit phases. For proc macros: sketch parse+transform split.
-1. **Write** — Implement using patterns from `macro-patterns.md`.
-1. **Verify expansion** — `cargo expand` (or `cargo expand module::name`). Invisible bugs are common.
-1. **Test** — For proc macros: `trybuild` compile-fail tests. For all: test each input shape.
-1. **Check hygiene** — `#[macro_export]` macros must use `$crate::` for all paths.
+2. **Plan** — For `macro_rules!`: sketch parse→emit phases. For proc macros: sketch parse+transform split.
+3. **Write** — Implement using patterns from `macro-patterns.md`.
+4. **Verify expansion** — `cargo expand` (or `cargo expand module::name`). Invisible bugs are common.
+5. **Test** — For proc macros: `trybuild` compile-fail tests. For all: test each input shape.
+6. **Check hygiene** — `#[macro_export]` macros must use `$crate::` for all paths.
 
 ## Decision Flowchart
 
@@ -75,21 +73,19 @@ cargo expand                  # expand all macros
 cargo expand module::name     # expand specific module
 ```
 
-**Check `cargo expand` output before considering a macro done** — expansion bugs are invisible in the source and only
-surface in the generated code.
+**Check `cargo expand` output before considering a macro done** — expansion bugs are invisible in the source and only surface in the generated code.
 
-For `macro_rules!` on nightly: `trace_macros!(true)` before invocation. For proc macros:
-`eprintln!("GENERATED:\n{}", output)` in the impl function.
+For `macro_rules!` on nightly: `trace_macros!(true)` before invocation. For proc macros: `eprintln!("GENERATED:\n{}", output)` in the impl function.
 
 ## Common Mistakes
 
 1. **Choosing `macro_rules!` for field-introspection.** Use a proc macro.
-1. **Not planning phases.** Always design parse → emit.
-1. **Ignoring follow-set restrictions.** `$x:expr` can only be followed by `=>`, `,`, `;`.
-1. **Repeated side effects.** `$x:expr` used twice = expression evaluated twice. Bind to `let` first.
-1. **Missing `$crate::`** in exported macros.
-1. **Using `panic!` in proc macros.** Use `syn::Error::new_spanned()`.
-1. **Fragment opacity.** `$x:expr` passed to another macro becomes opaque. Use `$($x:tt)*` for re-parsing.
+2. **Not planning phases.** Always design parse → emit.
+3. **Ignoring follow-set restrictions.** `$x:expr` can only be followed by `=>`, `,`, `;`.
+4. **Repeated side effects.** `$x:expr` used twice = expression evaluated twice. Bind to `let` first.
+5. **Missing `$crate::`** in exported macros.
+6. **Using `panic!` in proc macros.** Use `syn::Error::new_spanned()`.
+7. **Fragment opacity.** `$x:expr` passed to another macro becomes opaque. Use `$($x:tt)*` for re-parsing.
 
 ## Escalation Ladder
 

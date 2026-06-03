@@ -1,22 +1,21 @@
 # Complecting Patterns: Lean 4
 
-Read this when you've identified complecting in a Lean 4 file or namespace and aren't sure how to separate the concerns.
-Each entry shows a complected pattern and its decomplected alternative.
+Read this when you've identified complecting in a Lean 4 file or namespace and aren't sure how to separate the concerns. Each entry shows a complected pattern and its decomplected alternative.
 
 This file mirrors `rust-patterns.md` slot-for-slot so cross-language intuition transfers cleanly.
 
 ## Table of Contents
 
 1. [State + Identity](#state--identity)
-1. [Mechanism + Policy](#mechanism--policy)
-1. [Storage + Domain Logic](#storage--domain-logic)
-1. [Traversal + Computation](#traversal--computation)
-1. [Error Path + Happy Path](#error-path--happy-path)
-1. [Interface + Implementation Detail](#interface--implementation-detail)
-1. [Caller Knowledge + Module Logic](#caller-knowledge--module-logic)
-1. [Temporal Steps + Independent Operations](#temporal-steps--independent-operations)
-1. [Type Family + Generic Wrapper](#type-family--generic-wrapper)
-1. [Ordering + Logic](#ordering--logic)
+2. [Mechanism + Policy](#mechanism--policy)
+3. [Storage + Domain Logic](#storage--domain-logic)
+4. [Traversal + Computation](#traversal--computation)
+5. [Error Path + Happy Path](#error-path--happy-path)
+6. [Interface + Implementation Detail](#interface--implementation-detail)
+7. [Caller Knowledge + Module Logic](#caller-knowledge--module-logic)
+8. [Temporal Steps + Independent Operations](#temporal-steps--independent-operations)
+9. [Type Family + Generic Wrapper](#type-family--generic-wrapper)
+10. [Ordering + Logic](#ordering--logic)
 
 ______________________________________________________________________
 
@@ -32,8 +31,7 @@ def Counter.get (c : Counter) : IO Nat := c.ref.get
 def Counter.incr (c : Counter) : IO Unit := c.ref.modify (· + 1)
 ```
 
-The "value" is braided with the act of observing it. Logging, testing, and equational reasoning all require running
-`IO`.
+The "value" is braided with the act of observing it. Logging, testing, and equational reasoning all require running `IO`.
 
 **Decomplected:** Separate the immutable snapshot value from the mutable identity that produces it.
 
@@ -166,8 +164,7 @@ def process (input : String) : Except ParseError Output := do
   pure (finalize xformed)
 ```
 
-Or sharpen the type: instead of `Option α` returned from a lookup, expose `α := default` via `Option.getD`, or return a
-`Finset` (empty is fine) instead of `Option (NonemptyFinset α)`.
+Or sharpen the type: instead of `Option α` returned from a lookup, expose `α := default` via `Option.getD`, or return a `Finset` (empty is fine) instead of `Option (NonemptyFinset α)`.
 
 ______________________________________________________________________
 
@@ -254,8 +251,7 @@ ______________________________________________________________________
 
 ## Type Family + Generic Wrapper
 
-**Complected:** A definition that throws away known structure by parameterizing over `Type*` when a specific bundled
-object was in hand.
+**Complected:** A definition that throws away known structure by parameterizing over `Type*` when a specific bundled object was in hand.
 
 ```lean
 def process {α : Type*} (x : α) : α := ...
@@ -268,8 +264,7 @@ def process {α : Type*} (x : α) : α := ...
 def process (C : Cat) : Cat := ...
 ```
 
-If genuine polymorphism is needed, parameterize over the _bundled_ type (`Cat.{u, v}`), not over `Type*` plus
-reconstructed instances at every use site.
+If genuine polymorphism is needed, parameterize over the _bundled_ type (`Cat.{u, v}`), not over `Type*` plus reconstructed instances at every use site.
 
 ______________________________________________________________________
 
@@ -289,5 +284,4 @@ def requiredFeatures : Finset Feature :=
   {.unicode, .compression, .auth}
 ```
 
-`Finset` (or `Set`) advertises that the order is irrelevant; the type system stops a caller from depending on it. Use
-`List` only when sequence is part of the meaning.
+`Finset` (or `Set`) advertises that the order is irrelevant; the type system stops a caller from depending on it. Use `List` only when sequence is part of the meaning.

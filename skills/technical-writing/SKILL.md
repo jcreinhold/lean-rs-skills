@@ -25,10 +25,8 @@ Help the reader understand. Everything else serves that.
 
 Before editing prose, read the references that set the standard:
 
-1. [references/on-writing.md](./references/on-writing.md) — universal prose craft, then technical documentation, then
-   comments
-1. [references/on-writing-mathematics.md](./references/on-writing-mathematics.md) — read this as well when the text
-   carries mathematical content
+1. [references/on-writing.md](./references/on-writing.md) — universal prose craft, then technical documentation, then comments
+2. [references/on-writing-mathematics.md](./references/on-writing-mathematics.md) — read this as well when the text carries mathematical content
 
 These are the baseline. Local convenience does not override them.
 
@@ -36,27 +34,19 @@ These are the baseline. Local convenience does not override them.
 
 ### Edit (default)
 
-1. Read the target text and enough surrounding context to know what must not change — the relevant `AGENTS.md`, the
-   local `README.md`, adjacent definitions or theorems.
-1. Read the references above.
-1. Identify the audience and the purpose. A docstring serves callers; a design doc serves reviewers; a commit message
-   serves the next person who blames the line.
-1. Find the real problems: buried lede, vague pronouns, jargon used without inline definition, redundancy, comments that
-   restate code, paragraphs doing more than one job.
-1. Rewrite. Preserve every claim and technical distinction exactly. Change structure, word choice, sentence
-   construction, paragraph breaks. Add a brief inline definition the first time a term appears. Replace a code-restating
-   comment with rationale, or delete it.
-1. Show the before/after for localized changes. For substantial rewrites, show the revised text with a short note on
-   what changed and why.
+1. Read the target text and enough surrounding context to know what must not change — the relevant `AGENTS.md`, the local `README.md`, adjacent definitions or theorems.
+2. Read the references above.
+3. Identify the audience and the purpose. A docstring serves callers; a design doc serves reviewers; a commit message serves the next person who blames the line.
+4. Find the real problems: buried lede, vague pronouns, jargon used without inline definition, redundancy, comments that restate code, paragraphs doing more than one job.
+5. Rewrite. Preserve every claim and technical distinction exactly. Change structure, word choice, sentence construction, paragraph breaks. Add a brief inline definition the first time a term appears. Replace a code-restating comment with rationale, or delete it.
+6. Show the before/after for localized changes. For substantial rewrites, show the revised text with a short note on what changed and why.
 
 ### Review only
 
-When asked to review without editing, report each problem in place — location, what is wrong, how to fix it — and stop.
-Reporting is the deliverable.
+When asked to review without editing, report each problem in place — location, what is wrong, how to fix it — and stop. Reporting is the deliverable.
 
 ## Subagents
 
 For minimal prose-only edits, a local worker is available:
 
-- [`agents/edit.md`](./agents/edit.md) — reads the references, identifies prose problems, rewrites for clarity and
-  precision.
+- [`agents/edit.md`](./agents/edit.md) — reads the references, identifies prose problems, rewrites for clarity and precision.

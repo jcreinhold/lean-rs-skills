@@ -5,21 +5,17 @@ description: 'Use for Lean 4 performance: slow elaboration, heartbeat limits, ty
 
 # Optimizing Lean 4 Performance
 
-Diagnose and fix Lean 4 performance problems: slow elaboration, tactic timeouts, large proof terms, expensive typeclass
-synthesis, and slow builds.
+Diagnose and fix Lean 4 performance problems: slow elaboration, tactic timeouts, large proof terms, expensive typeclass synthesis, and slow builds.
 
-**Core principle: measure before changing.** Profile the slow command, identify the bottleneck subsystem (elaboration,
-simp, typeclass synthesis, kernel checking), then apply the targeted fix. Do not scatter `maxHeartbeats` increases or
-random `simp` rewrites hoping something helps.
+**Core principle: measure before changing.** Profile the slow command, identify the bottleneck subsystem (elaboration, simp, typeclass synthesis, kernel checking), then apply the targeted fix. Do not scatter `maxHeartbeats` increases or random `simp` rewrites hoping something helps.
 
 ## Fast Start
 
 For every performance problem:
 
-1. **Profile** — add `set_option diagnostics true in` before the slow command. This shows heartbeat counts per
-   subsystem, which simp lemmas fire, and which typeclass instances are tried.
-1. **Classify** — is the bottleneck elaboration, simp, typeclass synthesis, kernel reduction, or build structure?
-1. **Read only the reference that matches:**
+1. **Profile** — add `set_option diagnostics true in` before the slow command. This shows heartbeat counts per subsystem, which simp lemmas fire, and which typeclass instances are tried.
+2. **Classify** — is the bottleneck elaboration, simp, typeclass synthesis, kernel reduction, or build structure?
+3. **Read only the reference that matches:**
 
 | Bottleneck | Reference |
 | --- | --- |
@@ -50,29 +46,21 @@ Slow Lean file
 
 These eight changes fix the majority of Lean 4 performance problems:
 
-1. **Profile first.** `set_option diagnostics true in` on the slow command. Look at heartbeat breakdown before touching
-   anything.
+1. **Profile first.** `set_option diagnostics true in` on the slow command. Look at heartbeat breakdown before touching anything.
 
-1. **Replace bare `simp` with `simp only [...]`.** Use `simp?` to extract the minimal lemma list. Bare `simp` searches
-   the entire lemma database via discrimination trees — `simp only` skips that scan.
+2. **Replace bare `simp` with `simp only [...]`.** Use `simp?` to extract the minimal lemma list. Bare `simp` searches the entire lemma database via discrimination trees — `simp only` skips that scan.
 
-1. **Use `omega` for linear arithmetic.** It abstracts proofs into auxiliary definitions, keeping proof terms small.
-   Faster and produces smaller oleans than `simp` or `decide` for `Nat`/`Int` inequalities.
+3. **Use `omega` for linear arithmetic.** It abstracts proofs into auxiliary definitions, keeping proof terms small. Faster and produces smaller oleans than `simp` or `decide` for `Nat`/`Int` inequalities.
 
-1. **Mark definitions `noncomputable`** when you do not need executable code. This skips the entire compiler
-   code-generation pass.
+4. **Mark definitions `noncomputable`** when you do not need executable code. This skips the entire compiler code-generation pass.
 
-1. **Provide explicit typeclass instances** when synthesis is slow. A `have` binding or `@[local instance]`
-   short-circuits the search.
+5. **Provide explicit typeclass instances** when synthesis is slow. A `have` binding or `@[local instance]` short-circuits the search.
 
-1. **Use `dsimp` before `simp`** when the goal has definitional equalities. `dsimp` only fires definitional rewrite
-   rules (proof is `rfl`), which is cheaper than full `simp`.
+6. **Use `dsimp` before `simp`** when the goal has definitional equalities. `dsimp` only fires definitional rewrite rules (proof is `rfl`), which is cheaper than full `simp`.
 
-1. **Factor large proofs into named helper lemmas.** Each `theorem` gets its own heartbeat budget. The parent theorem
-   references the helper by name (opaque), not by inlining the full proof term.
+7. **Factor large proofs into named helper lemmas.** Each `theorem` gets its own heartbeat budget. The parent theorem references the helper by name (opaque), not by inlining the full proof term.
 
-1. **Minimize imports.** Import the most specific module, not a parent barrel. Each unnecessary import adds transitive
-   dependencies, typeclass instances, and simp lemmas to the environment.
+8. **Minimize imports.** Import the most specific module, not a parent barrel. Each unnecessary import adds transitive dependencies, typeclass instances, and simp lemmas to the environment.
 
 ## Tactic Speed Hierarchy
 
@@ -91,9 +79,7 @@ From fastest to slowest — prefer the cheapest tactic that closes the goal:
 | `simp` | Slow | Full database search |
 | `aesop` | Slow | Best-first proof search |
 
-When a proof needs `simp` or `aesop` during exploration, extract the explicit result with `simp?` or `aesop?` before
-committing — the explicit lemma list is faster (it skips the discrimination-tree database scan) and stays stable across
-mathlib versions, where a bare `simp` can silently change behavior.
+When a proof needs `simp` or `aesop` during exploration, extract the explicit result with `simp?` or `aesop?` before committing — the explicit lemma list is faster (it skips the discrimination-tree database scan) and stays stable across mathlib versions, where a bare `simp` can silently change behavior.
 
 ## Key Options Reference
 
@@ -124,50 +110,33 @@ For the complete option catalog and usage patterns, see the reference files.
 
 ## Formalization-Specific Guidance
 
-These patterns apply to large dependently-typed formalizations (languages with mutual-inductive judgments, deep binders,
-heavy mathlib use):
+These patterns apply to large dependently-typed formalizations (languages with mutual-inductive judgments, deep binders, heavy mathlib use):
 
-- **Mutual-inductive judgments** generate complex recursors. Typeclass synthesis over these types can be expensive.
-  Provide instances explicitly when the profiler shows synthesis dominating.
+- **Mutual-inductive judgments** generate complex recursors. Typeclass synthesis over these types can be expensive. Provide instances explicitly when the profiler shows synthesis dominating.
 
-- **Mutual-inductive elaboration cost.** Each `mutual` block elaborates all members together. Large mutual blocks (many
-  lemmas sharing a mutual recursion) create expensive shared elaboration contexts. Split mutual blocks to contain only
-  the lemmas that genuinely need mutual recursion. Use `cases` rather than `induction` at the top level — induction
-  motive synthesis on large mutual inductives can blow the heartbeat budget by itself.
+- **Mutual-inductive elaboration cost.** Each `mutual` block elaborates all members together. Large mutual blocks (many lemmas sharing a mutual recursion) create expensive shared elaboration contexts. Split mutual blocks to contain only the lemmas that genuinely need mutual recursion. Use `cases` rather than `induction` at the top level — induction motive synthesis on large mutual inductives can blow the heartbeat budget by itself.
 
-- **Binder-depth structural lemmas** often involve nested `Nat` arithmetic. Prefer `omega` over
-  `simp [Nat.add_comm, ...]` chains for these goals.
+- **Binder-depth structural lemmas** often involve nested `Nat` arithmetic. Prefer `omega` over `simp [Nat.add_comm, ...]` chains for these goals.
 
-- **Mathlib imports** are the largest contributor to build time. After `git pull` on mathlib, always run
-  `lake exe cache get` before building. Import the most specific mathlib module possible.
+- **Mathlib imports** are the largest contributor to build time. After `git pull` on mathlib, always run `lake exe cache get` before building. Import the most specific mathlib module possible.
 
-- **`count_heartbeats in`** (from mathlib) measures actual heartbeat usage. Use it as a regression watermark after
-  optimizing a proof.
+- **`count_heartbeats in`** (from mathlib) measures actual heartbeat usage. Use it as a regression watermark after optimizing a proof.
 
 ## Hard Rules
 
-1. **Do not raise `maxHeartbeats` as a first response.** Profile, find the bottleneck, fix it. Only raise the limit if
-   the proof is genuinely complex and the heartbeat budget is the actual constraint after optimization.
+1. **Do not raise `maxHeartbeats` as a first response.** Profile, find the bottleneck, fix it. Only raise the limit if the proof is genuinely complex and the heartbeat budget is the actual constraint after optimization.
 
-1. **Do not scatter `@[simp]` attributes to make proofs faster.** Each new simp lemma slows every `simp` call in every
-   downstream file. Add simp lemmas only when they belong to a coherent normal form.
+2. **Do not scatter `@[simp]` attributes to make proofs faster.** Each new simp lemma slows every `simp` call in every downstream file. Add simp lemmas only when they belong to a coherent normal form.
 
-1. **Do not use `native_decide` for trust-critical foundations.** It bypasses kernel verification. Use it for large
-   concrete computations where the mathematical content is clear.
+3. **Do not use `native_decide` for trust-critical foundations.** It bypasses kernel verification. Use it for large concrete computations where the mathematical content is clear.
 
-1. **Do not `set_option maxHeartbeats 0` in committed code.** This disables the timeout entirely. Use a specific
-   increased value if genuinely needed.
+4. **Do not `set_option maxHeartbeats 0` in committed code.** This disables the timeout entirely. Use a specific increased value if genuinely needed.
 
-1. **Do not optimize without measuring the before and after.** Use `count_heartbeats in` or `set_option profiler true`
-   to confirm the improvement is real.
+5. **Do not optimize without measuring the before and after.** Use `count_heartbeats in` or `set_option profiler true` to confirm the improvement is real.
 
 ## References
 
-- `references/profiling-and-diagnostics.md` — profiler options, trace flags, Firefox Profiler integration, `diagnostics`
-  mode, heartbeat counting
-- `references/tactic-performance.md` — tactic selection, simp discipline, typeclass synthesis tuning, avoiding
-  exponential blowup
-- `references/term-size-and-transparency.md` — olean size, proof term bloat, transparency hierarchy, reduction control,
-  `noncomputable`
-- `references/compilation-and-build.md` — Lake parallelism, caching, import structure, module organization, incremental
-  compilation
+- `references/profiling-and-diagnostics.md` — profiler options, trace flags, Firefox Profiler integration, `diagnostics` mode, heartbeat counting
+- `references/tactic-performance.md` — tactic selection, simp discipline, typeclass synthesis tuning, avoiding exponential blowup
+- `references/term-size-and-transparency.md` — olean size, proof term bloat, transparency hierarchy, reduction control, `noncomputable`
+- `references/compilation-and-build.md` — Lake parallelism, caching, import structure, module organization, incremental compilation

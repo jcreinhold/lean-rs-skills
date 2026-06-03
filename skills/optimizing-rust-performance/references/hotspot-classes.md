@@ -1,18 +1,17 @@
 # Rust Hotspot Classes
 
-These are the bottleneck classes that repeatedly matter in compiler-style Rust codebases. Each section names the class,
-lists the patterns to grep for, and calls out the typical failures inside that class.
+These are the bottleneck classes that repeatedly matter in compiler-style Rust codebases. Each section names the class, lists the patterns to grep for, and calls out the typical failures inside that class.
 
 ## Table of Contents
 
 1. [Arena And Phase-Local Allocation](#arena-and-phase-local-allocation)
-1. [Normalization, Evaluation, And Read-Back](#normalization-evaluation-and-read-back)
-1. [Traversal Cost](#traversal-cost)
-1. [Typechecker, Unifier, Constraint Queue, Metas](#typechecker-unifier-constraint-queue-metas)
-1. [Registry, Metadata, Side Tables, Cache Lookups](#registry-metadata-side-tables-cache-lookups)
-1. [Closure Capture And Environment Representation](#closure-capture-and-environment-representation)
-1. [Pipeline Throughput And Pass Boundaries](#pipeline-throughput-and-pass-boundaries)
-1. [Persistent Structures And Immutable Data](#persistent-structures-and-immutable-data)
+2. [Normalization, Evaluation, And Read-Back](#normalization-evaluation-and-read-back)
+3. [Traversal Cost](#traversal-cost)
+4. [Typechecker, Unifier, Constraint Queue, Metas](#typechecker-unifier-constraint-queue-metas)
+5. [Registry, Metadata, Side Tables, Cache Lookups](#registry-metadata-side-tables-cache-lookups)
+6. [Closure Capture And Environment Representation](#closure-capture-and-environment-representation)
+7. [Pipeline Throughput And Pass Boundaries](#pipeline-throughput-and-pass-boundaries)
+8. [Persistent Structures And Immutable Data](#persistent-structures-and-immutable-data)
 
 ---
 
@@ -66,8 +65,7 @@ Typical bottlenecks:
 
 One of the most important hotspot families in compiler workloads.
 
-Look for files named `unify.rs`, `unification/dispatch.rs`, `constraints/queue.rs`, `constraints/solving.rs`,
-`meta/state.rs`, and benches that exercise them.
+Look for files named `unify.rs`, `unification/dispatch.rs`, `constraints/queue.rs`, `constraints/solving.rs`, `meta/state.rs`, and benches that exercise them.
 
 Typical bottlenecks:
 
@@ -121,8 +119,7 @@ Typical bottlenecks:
 
 ## Persistent Structures And Immutable Data
 
-Persistent collections are not free. They help when sharing dominates copying, but they hurt when mutation depth
-dominates.
+Persistent collections are not free. They help when sharing dominates copying, but they hurt when mutation depth dominates.
 
 Search:
 

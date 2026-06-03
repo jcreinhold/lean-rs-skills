@@ -1,17 +1,16 @@
 # Benchmark Design And Regression Tracking
 
-A performance investigation needs both narrow and broad measurements. Use the smallest benchmark that answers the
-question, then expand scope if the change can move cost elsewhere.
+A performance investigation needs both narrow and broad measurements. Use the smallest benchmark that answers the question, then expand scope if the change can move cost elsewhere.
 
 ## Table of Contents
 
 1. [Choose The Right Benchmark Shape](#choose-the-right-benchmark-shape)
-1. [Criterion Guidance](#criterion-guidance)
-1. [Allocation Benchmarks](#allocation-benchmarks)
-1. [Interpreting Results](#interpreting-results)
-1. [Common Bogus Conclusions](#common-bogus-conclusions)
-1. [When To Add A New Bench Or Hook](#when-to-add-a-new-bench-or-hook)
-1. [Review Checklist](#review-checklist)
+2. [Criterion Guidance](#criterion-guidance)
+3. [Allocation Benchmarks](#allocation-benchmarks)
+4. [Interpreting Results](#interpreting-results)
+5. [Common Bogus Conclusions](#common-bogus-conclusions)
+6. [When To Add A New Bench Or Hook](#when-to-add-a-new-bench-or-hook)
+7. [Review Checklist](#review-checklist)
 
 ---
 

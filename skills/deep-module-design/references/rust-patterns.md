@@ -1,20 +1,19 @@
 # Complecting Checklist: Concrete Rust Patterns
 
-Read this when you've identified complecting in a module but aren't sure how to separate the concerns. Each entry shows
-a complected pattern and its decomplected alternative.
+Read this when you've identified complecting in a module but aren't sure how to separate the concerns. Each entry shows a complected pattern and its decomplected alternative.
 
 ## Table of Contents
 
 1. [State + Identity](#state--identity)
-1. [Mechanism + Policy](#mechanism--policy)
-1. [Storage + Domain Logic](#storage--domain-logic)
-1. [Traversal + Computation](#traversal--computation)
-1. [Error Path + Happy Path](#error-path--happy-path)
-1. [Interface + Implementation Detail](#interface--implementation-detail)
-1. [Caller Knowledge + Module Logic](#caller-knowledge--module-logic)
-1. [Temporal Steps + Independent Operations](#temporal-steps--independent-operations)
-1. [Type Family + Generic Wrapper](#type-family--generic-wrapper)
-1. [Ordering + Logic](#ordering--logic)
+2. [Mechanism + Policy](#mechanism--policy)
+3. [Storage + Domain Logic](#storage--domain-logic)
+4. [Traversal + Computation](#traversal--computation)
+5. [Error Path + Happy Path](#error-path--happy-path)
+6. [Interface + Implementation Detail](#interface--implementation-detail)
+7. [Caller Knowledge + Module Logic](#caller-knowledge--module-logic)
+8. [Temporal Steps + Independent Operations](#temporal-steps--independent-operations)
+9. [Type Family + Generic Wrapper](#type-family--generic-wrapper)
+10. [Ordering + Logic](#ordering--logic)
 
 ______________________________________________________________________
 
@@ -189,8 +188,7 @@ fn process(input: &str) -> Result<Output> {
 }
 ```
 
-The key insight: `validate` as a separate step was unnecessary if `parse` rejects invalid input. `is_empty()` was
-unnecessary if `transform` handles empty input as a normal case.
+The key insight: `validate` as a separate step was unnecessary if `parse` rejects invalid input. `is_empty()` was unnecessary if `transform` handles empty input as a normal case.
 
 ______________________________________________________________________
 
@@ -246,8 +244,7 @@ impl TextBuffer {
 }
 ```
 
-`handle_backspace` is `delete(cursor - 1..cursor)`. `handle_paste` is `insert(cursor, text)`. `handle_selection_delete`
-is `delete(sel.range())`. Three special-purpose methods become two general ones.
+`handle_backspace` is `delete(cursor - 1..cursor)`. `handle_paste` is `insert(cursor, text)`. `handle_selection_delete` is `delete(sel.range())`. Three special-purpose methods become two general ones.
 
 ______________________________________________________________________
 
@@ -302,9 +299,7 @@ ______________________________________________________________________
 
 **Complected:** Using a generic wrapper that discards known information.
 
-This is a common complecting pattern in Rust codebases that distinguish multiple value families. When code knows it has
-a value type but wraps it in a generic `OpenTerm`, it braids the specific type information with a generic container —
-and every downstream consumer must re-discover what the code already knew.
+This is a common complecting pattern in Rust codebases that distinguish multiple value families. When code knows it has a value type but wraps it in a generic `OpenTerm`, it braids the specific type information with a generic container — and every downstream consumer must re-discover what the code already knew.
 
 ```rust
 // Complected: known value type wrapped in generic

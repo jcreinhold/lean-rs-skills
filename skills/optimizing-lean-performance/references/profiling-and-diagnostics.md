@@ -5,13 +5,13 @@ How to find the bottleneck in slow Lean 4 code. Always start here before applyin
 ## Table of Contents
 
 1. [Diagnostics Mode (Start Here)](#diagnostics-mode-start-here)
-1. [Heartbeat Counting](#heartbeat-counting)
-1. [Wall-Clock Profiler](#wall-clock-profiler)
-1. [Tactic-Level Trace Profiler](#tactic-level-trace-profiler)
-1. [Firefox Profiler Integration](#firefox-profiler-integration)
-1. [Targeted Trace Options](#targeted-trace-options)
-1. [Simp Loop Detection](#simp-loop-detection)
-1. [Profiling Workflow](#profiling-workflow)
+2. [Heartbeat Counting](#heartbeat-counting)
+3. [Wall-Clock Profiler](#wall-clock-profiler)
+4. [Tactic-Level Trace Profiler](#tactic-level-trace-profiler)
+5. [Firefox Profiler Integration](#firefox-profiler-integration)
+6. [Targeted Trace Options](#targeted-trace-options)
+7. [Simp Loop Detection](#simp-loop-detection)
+8. [Profiling Workflow](#profiling-workflow)
 
 ---
 
@@ -27,10 +27,8 @@ theorem slow_theorem : ... := by ...
 
 This tracks counters across subsystems and reports:
 
-- **Typeclass synthesis**: how many times each instance was tried, how many unfoldings per declaration, which instances
-  dominate.
-- **Simp**: how many times each lemma was tried vs. actually used. A lemma tried 500 times but used 0 is a candidate for
-  removal from the simp set.
+- **Typeclass synthesis**: how many times each instance was tried, how many unfoldings per declaration, which instances dominate.
+- **Simp**: how many times each lemma was tried vs. actually used. A lemma tried 500 times but used 0 is a candidate for removal from the simp set.
 - **Kernel**: unfolds per definition. High counts indicate expensive reduction.
 
 Read the output top-to-bottom. The subsystem consuming the most heartbeats is the bottleneck.
@@ -49,8 +47,7 @@ set_option maxHeartbeats 400000 in
 theorem genuinely_complex : ... := by ...
 ```
 
-Use `count_heartbeats in` as a regression watermark: if an unrelated change makes a lemma slower, the heartbeat count
-catches it.
+Use `count_heartbeats in` as a regression watermark: if an unrelated change makes a lemma slower, the heartbeat count catches it.
 
 Related budgets:
 
@@ -79,8 +76,7 @@ set_option trace.profiler.threshold 10 in  -- ms threshold
 theorem my_theorem : ... := by ...
 ```
 
-This produces a hierarchical trace in the Infoview showing time per tactic step. Look for the single tactic consuming
-the most time — that is your target.
+This produces a hierarchical trace in the Infoview showing time per tactic step. Look for the single tactic consuming the most time — that is your target.
 
 ## Firefox Profiler Integration
 
@@ -92,8 +88,7 @@ set_option trace.profiler.output.pp true in
 theorem my_theorem : ... := by ...
 ```
 
-Then open `/tmp/profile.json` at `profiler.firefox.com`. The flame graph shows the full call stack, making it easy to
-spot where time concentrates.
+Then open `/tmp/profile.json` at `profiler.firefox.com`. The flame graph shows the full call stack, making it easy to spot where time concentrates.
 
 Command-line equivalent:
 
@@ -131,20 +126,19 @@ If `simp` hangs or times out, it may be looping:
 set_option linter.loopingSimpArgs true in
 ```
 
-This simplifies the RHS of each candidate lemma to detect cycles. It is expensive, so only enable it when diagnosing a
-suspected loop.
+This simplifies the RHS of each candidate lemma to detect cycles. It is expensive, so only enable it when diagnosing a suspected loop.
 
 ## Profiling Workflow
 
 1. Add `set_option diagnostics true in` before the slow command.
-1. Read the heartbeat breakdown. Identify the dominant subsystem.
-1. If elaboration dominates:
+2. Read the heartbeat breakdown. Identify the dominant subsystem.
+3. If elaboration dominates:
     - Add `set_option profiler true in` for phase breakdown.
     - Add `set_option trace.profiler true in` for per-tactic detail.
-1. If typeclass synthesis dominates:
+4. If typeclass synthesis dominates:
     - Add `set_option trace.Meta.synthInstance true in`.
     - Look for repeated failed attempts at the same goal.
-1. If simp dominates:
+5. If simp dominates:
     - Add `set_option trace.Meta.Tactic.simp.rewrite true in`.
     - Look for lemmas tried many times but never used.
-1. After fixing, measure again with `count_heartbeats in` to confirm improvement.
+6. After fixing, measure again with `count_heartbeats in` to confirm improvement.

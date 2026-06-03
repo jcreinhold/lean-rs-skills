@@ -5,14 +5,14 @@ How to organize Lean 4 code and Lake builds for fast compilation.
 ## Table of Contents
 
 1. [Lake Build Parallelism](#lake-build-parallelism)
-1. [Import Discipline](#import-discipline)
-1. [Incremental Compilation](#incremental-compilation)
-1. [Mathlib Caching](#mathlib-caching)
-1. [Lean Reservoir](#lean-reservoir)
-1. [Module Organization Patterns](#module-organization-patterns)
-1. [Compiler Options (for Executable Code)](#compiler-options-for-executable-code)
-1. [Language Server Performance](#language-server-performance)
-1. [Build Time Diagnostics](#build-time-diagnostics)
+2. [Import Discipline](#import-discipline)
+3. [Incremental Compilation](#incremental-compilation)
+4. [Mathlib Caching](#mathlib-caching)
+5. [Lean Reservoir](#lean-reservoir)
+6. [Module Organization Patterns](#module-organization-patterns)
+7. [Compiler Options (for Executable Code)](#compiler-options-for-executable-code)
+8. [Language Server Performance](#language-server-performance)
+9. [Build Time Diagnostics](#build-time-diagnostics)
 
 ---
 
@@ -28,23 +28,19 @@ lake build -j8
 lake build -j$(nproc)
 ```
 
-The `LEAN_NUM_THREADS` environment variable controls the Lean runtime's internal thread pool (defaults to logical CPU
-count). This affects within-file parallelism for things like async elaboration.
+The `LEAN_NUM_THREADS` environment variable controls the Lean runtime's internal thread pool (defaults to logical CPU count). This affects within-file parallelism for things like async elaboration.
 
 ### Maximizing build parallelism
 
 The build is as fast as its longest serial chain (critical path). To shorten the critical path:
 
-1. **Prefer wide, shallow dependency graphs.** If module A imports B which imports C which imports D, that is a 4-deep
-   serial chain. If instead A, B, C each import D directly, they build in parallel after D finishes.
+1. **Prefer wide, shallow dependency graphs.** If module A imports B which imports C which imports D, that is a 4-deep serial chain. If instead A, B, C each import D directly, they build in parallel after D finishes.
 
-1. **Split large files.** A 2000-line file is one serial compilation unit. If its theorems are independent, split into
-   focused modules that build in parallel.
+2. **Split large files.** A 2000-line file is one serial compilation unit. If its theorems are independent, split into focused modules that build in parallel.
 
-1. **Put expensive definitions early.** Place costly elaborations (large mutual inductives, complex typeclass
-   hierarchies) in leaf modules. They build once, get cached, and downstream consumers compile quickly.
+3. **Put expensive definitions early.** Place costly elaborations (large mutual inductives, complex typeclass hierarchies) in leaf modules. They build once, get cached, and downstream consumers compile quickly.
 
-1. **Minimize import depth.** Every `import` adds a sequential dependency. Import the most specific module possible.
+4. **Minimize import depth.** Every `import` adds a sequential dependency. Import the most specific module possible.
 
 ## Import Discipline
 
@@ -60,11 +56,9 @@ This directly affects elaboration speed in your file.
 
 1. **Import the leaf module, not the parent.** `import Mathlib.Topology.Basic` not `import Mathlib.Topology`.
 
-1. **Do not import modules just for notation.** If you only need a single notation or type, consider `open ... in` or a
-   local abbreviation.
+2. **Do not import modules just for notation.** If you only need a single notation or type, consider `open ... in` or a local abbreviation.
 
-1. **Audit imports periodically.** Remove imports that are no longer used. Use `importGraph` (available via mathlib's
-   tooling) to visualize the transitive import DAG and spot unintended heavy pulls:
+3. **Audit imports periodically.** Remove imports that are no longer used. Use `importGraph` (available via mathlib's tooling) to visualize the transitive import DAG and spot unintended heavy pulls:
 
     ```bash
     lake exe graph MyProject
@@ -72,16 +66,13 @@ This directly affects elaboration speed in your file.
 
     Alternatively, comment out imports one at a time and see if the file builds.
 
-1. **Scope `open` declarations narrowly.** `open CategoryTheory` at file scope forces Lean to resolve every name against
-   the entire namespace during elaboration. Use `open ... in` blocks or qualified names to keep the cost local.
+4. **Scope `open` declarations narrowly.** `open CategoryTheory` at file scope forces Lean to resolve every name against the entire namespace during elaboration. Use `open ... in` blocks or qualified names to keep the cost local.
 
-1. **For mathlib-dependent projects**, always run `lake exe cache get` after updating mathlib. This downloads
-   precompiled oleans and avoids rebuilding the entire dependency.
+5. **For mathlib-dependent projects**, always run `lake exe cache get` after updating mathlib. This downloads precompiled oleans and avoids rebuilding the entire dependency.
 
 ## Incremental Compilation
 
-Lake tracks dependencies via trace hashes (source content, toolchain version, import list). Only changed modules and
-their transitive dependents rebuild.
+Lake tracks dependencies via trace hashes (source content, toolchain version, import list). Only changed modules and their transitive dependents rebuild.
 
 Compiled outputs per module:
 
@@ -91,10 +82,8 @@ Compiled outputs per module:
 
 ### Avoiding unnecessary rebuilds
 
-- **Do not edit leaf modules casually.** A change to a widely-imported module forces rebuilding everything that imports
-  it.
-- **Use `lake build --old`** during development to skip recompilation of unedited files, assuming oleans are valid. This
-  is useful when you know the oleans are fine and want to iterate on a single file.
+- **Do not edit leaf modules casually.** A change to a widely-imported module forces rebuilding everything that imports it.
+- **Use `lake build --old`** during development to skip recompilation of unedited files, assuming oleans are valid. This is useful when you know the oleans are fine and want to iterate on a single file.
 - **Keep `lakefile.lean` stable.** Changes to the lakefile can invalidate the entire build cache.
 
 ## Mathlib Caching
@@ -118,9 +107,7 @@ lake build
 
 ## Lean Reservoir
 
-Lean's package registry at `reservoir.lean-lang.org` hosts precompiled artifacts for published packages. Lake can
-download build outputs for dependencies from Reservoir automatically, reducing build times for projects with many
-dependencies.
+Lean's package registry at `reservoir.lean-lang.org` hosts precompiled artifacts for published packages. Lake can download build outputs for dependencies from Reservoir automatically, reducing build times for projects with many dependencies.
 
 ## Module Organization Patterns
 
@@ -135,8 +122,7 @@ MyProject/
     Instances.lean    -- typeclass instances (adds to synthesis DB)
 ```
 
-Consumers that only need the types import `Basic`. Consumers that need the full API import `Basic.Lemmas`. This keeps
-the critical path short for most files.
+Consumers that only need the types import `Basic`. Consumers that need the full API import `Basic.Lemmas`. This keeps the critical path short for most files.
 
 ### Pattern: Avoiding Re-export Bloat
 
@@ -150,8 +136,7 @@ import HeavyModule
 open HeavyModule in  -- scoped, not re-exported
 ```
 
-`export` creates new declarations that downstream modules must process. `open` only affects name resolution in the
-current file.
+`export` creates new declarations that downstream modules must process. `open` only affects name resolution in the current file.
 
 ### Pattern: Parallel Test Modules
 
@@ -191,13 +176,11 @@ The language server re-elaborates files as you edit. To keep it responsive:
 
 1. **Split large files.** The server processes one file at a time. Smaller files mean faster feedback.
 
-1. **Minimize imports.** The server loads all transitively imported oleans into memory. Heavy imports increase memory
-   usage (1-2 GB is common for mathlib-heavy files).
+2. **Minimize imports.** The server loads all transitively imported oleans into memory. Heavy imports increase memory usage (1-2 GB is common for mathlib-heavy files).
 
-1. **Use `lake build` before editing.** Pre-building ensures the server loads cached oleans rather than elaborating
-   dependencies from scratch.
+3. **Use `lake build` before editing.** Pre-building ensures the server loads cached oleans rather than elaborating dependencies from scratch.
 
-1. **Close files you are not editing.** Some editors keep multiple Lean files active, each consuming server resources.
+4. **Close files you are not editing.** Some editors keep multiple Lean files active, each consuming server resources.
 
 ## Build Time Diagnostics
 

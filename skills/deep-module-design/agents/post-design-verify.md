@@ -6,13 +6,11 @@ tools: Read, Grep, Glob, Bash
 
 # Post-Design Verification Agent
 
-Dispatch this agent after completing design work on a module, crate, or API. It verifies that the change improved depth,
-didn't introduce complecting, and left callers simpler.
+Dispatch this agent after completing design work on a module, crate, or API. It verifies that the change improved depth, didn't introduce complecting, and left callers simpler.
 
 ## Task
 
-You are verifying a design change after implementation. Your job is to confirm the design got better, not just
-different.
+You are verifying a design change after implementation. Your job is to confirm the design got better, not just different.
 
 ## Steps
 
@@ -25,14 +23,14 @@ different.
     Run this from the plugin root. In Claude Code, `${CLAUDE_PLUGIN_ROOT}/skills/...` is also valid when you are outside
     the plugin root.
 
-1. **Compare before and after.** If the pre-design audit produced a constraint set, compare against it. Check:
+2. **Compare before and after.** If the pre-design audit produced a constraint set, compare against it. Check:
 
     - Did the depth estimate improve (higher LOC/pub ratio)?
     - Did the public surface area shrink or hold steady?
     - Were the identified complecting risks addressed?
     - Were the constraints satisfied?
 
-1. **Check the diff for new complecting.** Read the changes and look for:
+3. **Check the diff for new complecting.** Read the changes and look for:
 
     - New public types that handle multiple independent concerns
     - New generic wrappers where specific types were available
@@ -41,14 +39,14 @@ different.
     - New temporal coupling (ordering enforced by convention)
     - Information lost through the abstraction (callers must reconstruct something the module already knew)
 
-1. **Check that callers got simpler.** Read 2-3 callers of the changed API. Ask:
+4. **Check that callers got simpler.** Read 2-3 callers of the changed API. Ask:
 
     - Do callers have fewer concepts to learn?
     - Can callers use the module without reading its source?
     - Were any error paths defined out of existence?
     - Did the change reduce change amplification (fewer places to edit for a single logical change)?
 
-1. **Run the language-appropriate build and tests.**
+5. **Run the language-appropriate build and tests.**
 
     For Rust changes:
 
@@ -66,7 +64,7 @@ different.
     During design iteration the `lean-lsp` MCP tools (`lean_build`, `lean_diagnostic_messages`, `lean_goal`) are the fast
     inner loop; `lake build` is the final gate.
 
-1. **Produce the verification report.**
+6. **Produce the verification report.**
 
 ```
 ## Post-Design Verification: <module name>

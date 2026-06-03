@@ -1,12 +1,8 @@
 # lean-rs-skills
 
-A Codex and Claude Code plugin bundling a set of generic **Rust + Lean 4 craft skills** — the kind of reusable,
-project-independent guidance you want available in every systems / formal-methods project instead of copy-pasting skills
-between repos.
+A Codex and Claude Code plugin bundling a set of generic **Rust + Lean 4 craft skills** — the kind of reusable, project-independent guidance you want available in every systems / formal-methods project instead of copy-pasting skills between repos.
 
-Each skill is self-contained under `skills/<name>/`: a lean `SKILL.md` plus `references/` for depth. Two skills
-(`deep-module-design`, `technical-writing`) also bundle helper agents under `skills/<name>/agents/` that the skill
-invokes by relative path for systematic reviews.
+Each skill is self-contained under `skills/<name>/`: a lean `SKILL.md` plus `references/` for depth. Two skills (`deep-module-design`, `technical-writing`) also bundle helper agents under `skills/<name>/agents/` that the skill invokes by relative path for systematic reviews.
 
 ## Skills
 
@@ -25,15 +21,13 @@ Skills trigger automatically when your request matches their description; you do
 
 ### Codex
 
-This repo is a Codex plugin through `.codex-plugin/plugin.json`. For local development, validate the plugin from the
-repo root with:
+This repo is a Codex plugin through `.codex-plugin/plugin.json`. For local development, validate the plugin from the repo root with:
 
 ```bash
 uv run --with pyyaml /Users/jcreinhold/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
 ```
 
-To expose it through a Codex marketplace, add a marketplace entry that points at this repo as the plugin source. Keep
-the marketplace file outside the shared skill content unless you are intentionally publishing a repo/team marketplace.
+To expose it through a Codex marketplace, add a marketplace entry that points at this repo as the plugin source. Keep the marketplace file outside the shared skill content unless you are intentionally publishing a repo/team marketplace.
 
 ### Claude Code marketplace
 
@@ -52,14 +46,12 @@ Then run `/help` to confirm the skills are listed.
 
 ## Scope notes
 
-- `optimizing-rust-performance`, `test-engineering`, and `writing-rust-macros` are intentionally Rust-focused.
-  `optimizing-lean-performance` is Lean 4 specific.
+- `optimizing-rust-performance`, `test-engineering`, and `writing-rust-macros` are intentionally Rust-focused. `optimizing-lean-performance` is Lean 4 specific.
 - `deep-module-design` and `technical-writing` are language-agnostic.
 
 ## Provenance
 
-These skills were consolidated from the canonical copies maintained across several Rust/Lean projects, then genericized
-(project-specific names removed) to serve as a single shared source of truth.
+These skills were consolidated from the canonical copies maintained across several Rust/Lean projects, then genericized (project-specific names removed) to serve as a single shared source of truth.
 
 ## License
 

@@ -1,19 +1,18 @@
 # Distilled External Lessons
 
-These are not cargo-cult recipes. They are decision rules distilled from Rust performance references and strong Rust
-codebases.
+These are not cargo-cult recipes. They are decision rules distilled from Rust performance references and strong Rust codebases.
 
 ## Table of Contents
 
 1. [From The Rust Performance Book](#from-the-rust-performance-book)
-1. [From Criterion.rs](#from-criterionrs)
-1. [From DHAT](#from-dhat)
-1. [From rustc, measureme, And rustc-perf](#from-rustc-measureme-and-rustc-perf)
-1. [From rust-analyzer](#from-rust-analyzer)
-1. [From ripgrep](#from-ripgrep)
-1. [From regex-automata](#from-regex-automata)
-1. [From hashbrown](#from-hashbrown)
-1. [External Sources Used](#external-sources-used)
+2. [From Criterion.rs](#from-criterionrs)
+3. [From DHAT](#from-dhat)
+4. [From rustc, measureme, And rustc-perf](#from-rustc-measureme-and-rustc-perf)
+5. [From rust-analyzer](#from-rust-analyzer)
+6. [From ripgrep](#from-ripgrep)
+7. [From regex-automata](#from-regex-automata)
+8. [From hashbrown](#from-hashbrown)
+9. [External Sources Used](#external-sources-used)
 
 ---
 
@@ -34,8 +33,7 @@ Applying this:
 
 - Keep baseline management explicit.
 - Use `--save-baseline` and `--baseline` instead of eyeballing numbers.
-- Use `--profile-time` when attaching profilers so the profiler sees the benchmarked code, not Criterion's adaptive
-  measurement machinery.
+- Use `--profile-time` when attaching profilers so the profiler sees the benchmarked code, not Criterion's adaptive measurement machinery.
 
 Applying this:
 
@@ -68,21 +66,18 @@ Applying this:
 ## From rust-analyzer
 
 - Built-in lightweight profiling and batch analysis tools make iterative optimization practical.
-- Performance debugging gets much faster when the codebase has command-driven workloads instead of IDE-only
-  reproduction.
+- Performance debugging gets much faster when the codebase has command-driven workloads instead of IDE-only reproduction.
 
 Applying this:
 
 - prefer command-line reproductions over GUI-only ones
-- if a hot path only reproduces through a larger workflow, consider adding a dedicated workload rather than relying on
-  manual reproduction
+- if a hot path only reproduces through a larger workflow, consider adding a dedicated workload rather than relying on manual reproduction
 
 ## From ripgrep
 
 - Benchmark design must isolate the real task instead of accidentally measuring hidden fast paths.
 - Representative workload shape matters more than generic "faster engine" claims.
-- The right optimization may be choosing a strategy that better matches the input, not just making the current strategy
-  cheaper.
+- The right optimization may be choosing a strategy that better matches the input, not just making the current strategy cheaper.
 
 Applying this:
 
@@ -97,8 +92,7 @@ Applying this:
 
 Applying this:
 
-- be explicit when choosing between arena slices, persistent vectors, hash tables, dense indices, or cached normalized
-  forms
+- be explicit when choosing between arena slices, persistent vectors, hash tables, dense indices, or cached normalized forms
 - measure build-time and runtime effects separately when a representation change impacts both
 
 ## From hashbrown
