@@ -21,13 +21,22 @@ Skills trigger automatically when your request matches their description; you do
 
 ### Codex
 
-This repo is a Codex plugin through `.codex-plugin/plugin.json`. For local development, validate the plugin from the repo root with:
+This repo is a Codex marketplace repo and a Claude Code marketplace repo. Both hosts use the repository root as the plugin package, so the root `skills/` directory stays canonical and is not duplicated.
+
+Codex reads `.agents/plugins/marketplace.json`, whose `source.path` points at `./`. Claude Code reads `.claude-plugin/marketplace.json`, whose `source` also points at `./`.
+
+For local development, validate the Codex plugin from the repo root:
 
 ```bash
 uv run --with pyyaml /Users/jcreinhold/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
 ```
 
-To expose it through a Codex marketplace, add a marketplace entry that points at this repo as the plugin source. Keep the marketplace file outside the shared skill content unless you are intentionally publishing a repo/team marketplace.
+After publishing marketplace changes, refresh and reinstall it in Codex:
+
+```bash
+codex plugin marketplace upgrade lean-rs-skills
+codex plugin add lean-rs-skills@lean-rs-skills
+```
 
 ### Claude Code marketplace
 
