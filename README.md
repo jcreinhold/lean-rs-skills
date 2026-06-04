@@ -21,14 +21,17 @@ Skills trigger automatically when your request matches their description; you do
 
 ### Codex
 
-This repo is a Codex marketplace repo and a Claude Code marketplace repo. Both hosts use the repository root as the plugin package, so the root `skills/` directory stays canonical and is not duplicated.
+This repo is a Codex marketplace repo and a Claude Code marketplace repo. The root `skills/` directory stays canonical and is not duplicated.
 
-Codex reads `.agents/plugins/marketplace.json`, whose `source.path` points at `./`. Claude Code reads `.claude-plugin/marketplace.json`, whose `source` also points at `./`.
+Codex reads `.agents/plugins/marketplace.json`, whose `source.path` points at `./plugins/lean-rs-skills`. That directory is a thin symlink package back to the root `.codex-plugin/`, `skills/`, `README.md`, and `LICENSE` files because the Codex CLI does not surface a marketplace plugin whose source path is the marketplace root itself.
 
-For local development, validate the Codex plugin from the repo root:
+Claude Code reads `.claude-plugin/marketplace.json`, whose `source` points at `./`, so `claude --plugin-dir ~/Code/lean-rs-skills` and Claude marketplace installs continue to use the root plugin directly.
+
+For local development, validate both Codex plugin views from the repo root:
 
 ```bash
 uv run --with pyyaml /Users/jcreinhold/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+uv run --with pyyaml /Users/jcreinhold/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/lean-rs-skills
 ```
 
 After publishing marketplace changes, refresh and reinstall it in Codex:
