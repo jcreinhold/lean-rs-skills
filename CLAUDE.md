@@ -29,6 +29,14 @@ To exercise the plugin itself:
 claude --plugin-dir ~/Code/lean-rs-skills   # load locally, then /help to confirm skills are listed
 ```
 
+For Codex plugin validation, check both the root view and the Codex marketplace adapter:
+
+```bash
+scripts/sync-codex-adapter.sh
+uv run --with pyyaml /Users/jcreinhold/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+uv run --with pyyaml /Users/jcreinhold/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/lean-rs-skills
+```
+
 ## Skill anatomy
 
 Every skill lives under `skills/<name>/` and follows the same layout:
@@ -57,6 +65,12 @@ Adding a skill requires no skill-list manifest edit — both hosts discover skil
 - `.claude-plugin/plugin.json` — plugin metadata (name, version, description, keywords).
 - `.claude-plugin/marketplace.json` — marketplace entry pointing `source` at `./`.
 - `.codex-plugin/plugin.json` — Codex metadata, interface presentation, and `skills: "./skills/"`.
+- `.agents/plugins/marketplace.json` — Codex marketplace metadata pointing at `./plugins/lean-rs-skills`.
+- `plugins/lean-rs-skills/` — generated Codex marketplace adapter package. Regenerate it with `scripts/sync-codex-adapter.sh`; do not edit generated adapter files directly.
+
+### Why the Codex adapter exists
+
+Claude Code can install the repo root directly through `.claude-plugin/marketplace.json`. Codex local marketplace discovery expects marketplace entries to point at a package path like `./plugins/<name>`, and a root-as-plugin source is not surfaced reliably. The adapter keeps Codex on that expected layout while preserving root `skills/` as the authoring source.
 
 Keep the skill table in `README.md` in sync when you add, remove, or rescope a skill.
 

@@ -19,17 +19,30 @@ Skills trigger automatically when your request matches their description; you do
 
 ## Installation
 
+This repo uses the same basic distribution pattern as multi-host skill plugins such as Superpowers: one canonical skill tree plus small host-specific metadata surfaces. The skills live once, at `skills/`; host manifests and marketplace files describe how each agent should discover that same content.
+
+### Repository layout
+
+- Canonical plugin contents: `skills/`, `README.md`, `LICENSE`, and the root host manifests.
+- Claude Code distribution: `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` describe the repo root as the plugin.
+- Codex distribution: `.agents/plugins/marketplace.json` describes a Codex marketplace whose plugin source is `./plugins/lean-rs-skills`.
+- Codex adapter package: `plugins/lean-rs-skills/` is a generated package containing the Codex manifest, skills, README, and license.
+
+The Codex adapter is intentional. Codex local marketplace discovery expects marketplace entries to point at a plugin package path such as `./plugins/<name>`; in practice, a marketplace entry whose plugin source is the marketplace root itself is not surfaced reliably. The adapter keeps Codex on that conventional path without making `plugins/lean-rs-skills/` the authoring location.
+
 ### Codex
 
-This repo is a Codex marketplace repo and a Claude Code marketplace repo. The root `skills/` directory stays canonical and is not duplicated.
+Codex reads `.agents/plugins/marketplace.json`, whose `source.path` points at `./plugins/lean-rs-skills`. Install or refresh from that marketplace:
 
-Codex reads `.agents/plugins/marketplace.json`, whose `source.path` points at `./plugins/lean-rs-skills`. That directory is a thin symlink package back to the root `.codex-plugin/`, `skills/`, `README.md`, and `LICENSE` files because the Codex CLI does not surface a marketplace plugin whose source path is the marketplace root itself.
-
-Claude Code reads `.claude-plugin/marketplace.json`, whose `source` points at `./`, so `claude --plugin-dir ~/Code/lean-rs-skills` and Claude marketplace installs continue to use the root plugin directly.
+```bash
+codex plugin marketplace add ~/Code/lean-rs-skills
+codex plugin add lean-rs-skills@lean-rs-skills
+```
 
 For local development, validate both Codex plugin views from the repo root:
 
 ```bash
+scripts/sync-codex-adapter.sh
 uv run --with pyyaml /Users/jcreinhold/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
 uv run --with pyyaml /Users/jcreinhold/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/lean-rs-skills
 ```
@@ -40,6 +53,10 @@ After publishing marketplace changes, refresh and reinstall it in Codex:
 codex plugin marketplace upgrade lean-rs-skills
 codex plugin add lean-rs-skills@lean-rs-skills
 ```
+
+### Claude Code
+
+Claude Code reads `.claude-plugin/marketplace.json`, whose `source` points at `./`, so `claude --plugin-dir ~/Code/lean-rs-skills` and Claude marketplace installs use the root plugin directly.
 
 ### Claude Code marketplace
 
@@ -55,6 +72,10 @@ claude --plugin-dir ~/Code/lean-rs-skills
 ```
 
 Then run `/help` to confirm the skills are listed.
+
+## Design rationale
+
+The repo keeps one canonical `skills/` tree for authoring. Claude Code can load that tree from the repo root. Codex loads a generated adapter package under `plugins/lean-rs-skills/`, matching Codex marketplace package layout. Regenerate the adapter with `scripts/sync-codex-adapter.sh` before validating or publishing Codex changes.
 
 ## Scope notes
 
