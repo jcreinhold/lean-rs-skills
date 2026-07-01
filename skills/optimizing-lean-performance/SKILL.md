@@ -54,7 +54,7 @@ These eight changes fix the majority of Lean 4 performance problems:
 
 4. **Mark definitions `noncomputable`** when you do not need executable code. This skips the entire compiler code-generation pass.
 
-5. **Provide explicit typeclass instances** when synthesis is slow. A `have` binding or `@[local instance]` short-circuits the search.
+5. **Provide explicit typeclass instances** when synthesis is slow. A `letI`, `haveI`, or `@[local instance]` binding short-circuits the search. If the same fix recurs, treat it as API design: prefer a named theorem or low-priority/local instance over a broad new global instance.
 
 6. **Use `dsimp` before `simp`** when the goal has definitional equalities. `dsimp` only fires definitional rewrite rules (proof is `rfl`), which is cheaper than full `simp`.
 

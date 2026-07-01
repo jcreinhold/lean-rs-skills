@@ -80,22 +80,39 @@ Look for:
 
 ### Fixing slow synthesis
 
-1. **Provide the instance explicitly.** A `have` or `let` binding short-circuits the search:
+1. **Provide the instance explicitly.** A local instance binding short-circuits the search:
 
     ```lean
-    have : Monoid α := inferInstance  -- resolved once, reused below
+    haveI : Monoid α := inferInstance  -- resolved once, reused below
     ```
 
-2. **Use `@[local instance]`** to add a fast-path instance for a specific file without polluting the global database.
+2. **Use `letI`, `haveI`, or `@[local instance]`** to add a fast path for a specific proof or section without polluting
+   the global database. Use `haveI` for opaque proof facts, `letI` when later reduction should see the instance body,
+   and `attribute [local instance] existingLemma` when a named theorem should be available only in the current scope.
 
-3. **Cap synthesis budgets locally** when a proof touches a pathological hierarchy:
+3. **Escalate repeated local fixes into API design.** A true fact is not automatically a good global instance. If the
+   fact is broad, expensive, or creates competing search paths, expose it as a named theorem or constructor and install
+   it locally only where needed. If it must be global, give broad derived instances low priority:
+
+    ```lean
+    instance (priority := 100) : SomeBroadClass A := ...
+    ```
+
+4. **Avoid overlapping inherited data.** Before making one class extend another, check whether both classes carry fields
+   such as zero morphisms, scalar actions, order structure, topology, or category structure. Competing inherited data can
+   make `infer_instance`, `simp`, and definitional equality fragile.
+
+5. **Cap synthesis budgets locally** when a proof touches a pathological hierarchy:
 
     ```lean
     set_option synthInstance.maxHeartbeats 10000 in
     set_option synthInstance.maxSize 400 in
     ```
 
-4. **Reduce instance search depth.** If the profiler shows synthesis trying instances that clearly cannot apply, the hierarchy may need restructuring (this is a larger fix).
+6. **Reduce instance search depth.** If the profiler shows synthesis trying instances that clearly cannot apply, the
+   hierarchy may need restructuring. Use `Mathlib/CategoryTheory/Abelian/Basic.lean` as an exemplar: theorem statements
+   require structure they genuinely need, proof-only structure is local, broad derived instances are low-priority, and
+   risky facts remain named theorems rather than global instances.
 
 ## Expensive `rfl`
 
