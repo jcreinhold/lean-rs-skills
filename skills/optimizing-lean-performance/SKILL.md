@@ -1,142 +1,141 @@
 ---
 name: optimizing-lean-performance
-description: 'Use for Lean 4 performance: slow elaboration, heartbeat limits, typeclass loops, simp timeouts, large oleans, slow Lake builds, term bloat, module parallelism.'
+description: 'Use for Lean 4 performance: slow elaboration, heartbeat timeouts, typeclass search, simp timeouts, repeated dsimp/unfold of a definition, reducible abbrev blowup, @[expose] and module-system unfolding, large oleans, slow Lake builds.'
 ---
 
 # Optimizing Lean 4 Performance
 
-Diagnose and fix Lean 4 performance problems: slow elaboration, tactic timeouts, large proof terms, expensive typeclass synthesis, and slow builds.
+Find and fix slow Lean 4 elaboration, proofs, and builds.
 
-**Core principle: measure before changing.** Profile the slow command, identify the bottleneck subsystem (elaboration, simp, typeclass synthesis, kernel checking), then apply the targeted fix. Do not scatter `maxHeartbeats` increases or random `simp` rewrites hoping something helps.
+Your guess about why a Lean file is slow will usually be wrong, and it will be wrong in a specific way: you will blame a tactic you can see, when the cost sits in a phase you cannot. Measure first. Every time.
 
-## Fast Start
+## Orient First
 
-For every performance problem:
+Match the pressure you feel to what to look for.
 
-1. **Profile** — add `set_option diagnostics true in` before the slow command. This shows heartbeat counts per subsystem, which simp lemmas fire, and which typeclass instances are tried.
-2. **Classify** — is the bottleneck elaboration, simp, typeclass synthesis, kernel reduction, or build structure?
-3. **Read only the reference that matches:**
-
-| Bottleneck | Reference |
-| --- | --- |
-| Don't know yet / need profiling | `references/profiling-and-diagnostics.md` |
-| Slow tactic, simp timeout, heartbeat limit | `references/tactic-performance.md` |
-| Large oleans, term bloat, transparency control | `references/term-size-and-transparency.md` |
-| Slow build, Lake parallelism, imports, module layout | `references/compilation-and-build.md` |
-
-Do not read reference files speculatively. Profile first, then read the one that matches.
-
-## Decision Tree
-
-```
-Slow Lean file
-├── Which command is slow?
-│   ├── Unknown → set_option diagnostics true, read profiling-and-diagnostics.md
-│   ├── A specific theorem/def
-│   │   ├── Heartbeat timeout → read tactic-performance.md
-│   │   ├── Typeclass synthesis timeout → read tactic-performance.md §Typeclass
-│   │   ├── simp timeout or looping → read tactic-performance.md §Simp
-│   │   └── Kernel reduction / by rfl slow → read term-size-and-transparency.md
-│   └── The whole file / import
-│       ├── Large olean → read term-size-and-transparency.md
-│       └── Build time → read compilation-and-build.md
-```
-
-## Quick Wins
-
-These eight changes fix the majority of Lean 4 performance problems:
-
-1. **Profile first.** `set_option diagnostics true in` on the slow command. Look at heartbeat breakdown before touching anything.
-
-2. **Replace bare `simp` with `simp only [...]`.** Use `simp?` to extract the minimal lemma list. Bare `simp` searches the entire lemma database via discrimination trees — `simp only` skips that scan.
-
-3. **Use `omega` for linear arithmetic.** It abstracts proofs into auxiliary definitions, keeping proof terms small. Faster and produces smaller oleans than `simp` or `decide` for `Nat`/`Int` inequalities.
-
-4. **Mark definitions `noncomputable`** when you do not need executable code. This skips the entire compiler code-generation pass.
-
-5. **Provide explicit typeclass instances** when synthesis is slow. A `letI`, `haveI`, or `@[local instance]` binding short-circuits the search. If the same fix recurs, treat it as API design: prefer a named theorem or low-priority/local instance over a broad new global instance.
-
-6. **Use `dsimp` before `simp`** when the goal has definitional equalities. `dsimp` only fires definitional rewrite rules (proof is `rfl`), which is cheaper than full `simp`.
-
-7. **Factor large proofs into named helper lemmas.** Each `theorem` gets its own heartbeat budget. The parent theorem references the helper by name (opaque), not by inlining the full proof term.
-
-8. **Minimize imports.** Import the most specific module, not a parent barrel. Each unnecessary import adds transitive dependencies, typeclass instances, and simp lemmas to the environment.
-
-## Tactic Speed Hierarchy
-
-From fastest to slowest — prefer the cheapest tactic that closes the goal:
-
-| Tactic | Speed | When to use |
+| Pressure | Look for | Read |
 | --- | --- | --- |
-| `exact`, `apply`, `constructor` | Fastest | Direct term construction |
-| `assumption` | Fast | Goal matches a hypothesis |
-| `omega` | Fast | Linear `Nat`/`Int` arithmetic |
-| `norm_num` | Fast | Numeric normalization |
-| `decide` | Medium | Small decidable computations |
-| `native_decide` | Fast (large) | Large decidable computations (trusts compiler) |
-| `dsimp` | Medium | Definitional simplification only |
-| `simp only [...]` | Medium | Constrained rewrite set |
-| `simp` | Slow | Full database search |
-| `aesop` | Slow | Best-first proof search |
+| Anything, before you have profiled | Which **phase** burns the time, not which tactic looks scary | `references/profiling-and-diagnostics.md` |
+| The profiler blames `type checking` | The kernel grinding on a big proof term | `references/term-size-and-transparency.md` |
+| The profiler blames `typeclass inference` | Instances re-derived; non-canonical instance terms | `references/definitions-and-instances.md` |
+| The profiler blames `elaboration` or `simp` | A tactic doing more work than you asked | `references/tactic-performance.md` |
+| The same `dsimp [myDef]` in proof after proof | A definition with no equation lemmas | `references/definitions-and-instances.md` |
+| The olean is huge | Proof terms inlined instead of named | `references/term-size-and-transparency.md` |
+| `lake build` drags | Import surface and the critical path | `references/compilation-and-build.md` |
 
-When a proof needs `simp` or `aesop` during exploration, extract the explicit result with `simp?` or `aesop?` before committing — the explicit lemma list is faster (it skips the discrimination-tree database scan) and stays stable across mathlib versions, where a bare `simp` can silently change behavior.
+If the pressure is unclear, run the audit and let the counts point you:
 
-## Key Options Reference
-
-Options you will use most often, with defaults:
-
-```lean
--- Heartbeat budgets
-set_option maxHeartbeats 200000        -- per command (0 = unlimited)
-set_option synthInstance.maxHeartbeats 20000  -- per typeclass resolution
-
--- Profiling
-set_option diagnostics true            -- subsystem-level counters
-set_option profiler true               -- wall-clock per phase
-set_option trace.profiler true         -- tactic-level flame graph
-set_option trace.profiler.output "profile.json"  -- Firefox Profiler export
-
--- Typeclass synthesis
-set_option synthInstance.maxSize 128   -- max instances in solution chain
-
--- Simp diagnostics
-set_option trace.Meta.Tactic.simp.rewrite true  -- which lemmas fire
-
--- Reduction control
-set_option smartUnfolding true         -- use auxiliary match defs (default)
+```bash
+bash skills/optimizing-lean-performance/scripts/audit-lean-perf.sh <path>
 ```
 
-For the complete option catalog and usage patterns, see the reference files.
+## Measure First
 
-## Formalization-Specific Guidance
+Four tools. They answer different questions, so pick by question.
 
-These patterns apply to large dependently-typed formalizations (languages with mutual-inductive judgments, deep binders, heavy mathlib use):
+| Tool | Answers |
+| --- | --- |
+| `set_option profiler true` | Where the seconds go: elaboration, typeclass search, or the kernel |
+| `set_option diagnostics true` | What Lean keeps unfolding and searching |
+| `set_option trace.profiler true` | Which tactic, as a tree with times |
+| `#count_heartbeats in` | What this proof costs, as a number you can compare later |
 
-- **Mutual-inductive judgments** generate complex recursors. Typeclass synthesis over these types can be expensive. Provide instances explicitly when the profiler shows synthesis dominating.
+Start with `profiler` and read the cumulative table before you touch anything. Here is one from a real 20-second file:
 
-- **Mutual-inductive elaboration cost.** Each `mutual` block elaborates all members together. Large mutual blocks (many lemmas sharing a mutual recursion) create expensive shared elaboration contexts. Split mutual blocks to contain only the lemmas that genuinely need mutual recursion. Use `cases` rather than `induction` at the top level — induction motive synthesis on large mutual inductives can blow the heartbeat budget by itself.
+```
+type checking took 18.1s
+cumulative profiling times:
+    dsimp                 25.5ms
+    elaboration           35.3ms
+    simp                  232ms
+    tactic execution      357ms
+    typeclass inference   74.5ms
+    type checking         18.1s
+```
 
-- **Binder-depth structural lemmas** often involve nested `Nat` arithmetic. Prefer `omega` over `simp [Nat.add_comm, ...]` chains for these goals.
+Every tactic in that file, added up, costs under half a second. The **kernel** costs eighteen. Squeezing `simp` there would have bought back a hundredth of a percent. Rerunning with `-Ddebug.skipKernelTC=true` took 1.8 seconds, which settles it: the elaborator was never the problem.
 
-- **Mathlib imports** are the largest contributor to build time. After `git pull` on mathlib, always run `lake exe cache get` before building. Import the most specific mathlib module possible.
+`type checking` is the phase people forget, because nothing in the source names it. The kernel re-checks every proof term your tactics build, and it ignores `abbrev`, `@[reducible]`, and `@[irreducible]` — those bind the elaborator, not the kernel. The only fix is a smaller proof term.
 
-- **`count_heartbeats in`** (from mathlib) measures actual heartbeat usage. Use it as a regression watermark after optimizing a proof.
+Once you know the phase, use `diagnostics` to name the culprit. It reports **counters, not heartbeats**.
 
-## Hard Rules
+Each section names a distinct fix. This table is the fastest route from a symptom to a cause:
 
-1. **Do not raise `maxHeartbeats` as a first response.** Profile, find the bottleneck, fix it. Only raise the limit if the proof is genuinely complex and the heartbeat budget is the actual constraint after optimization.
+| Counter section | What it means | Fix direction |
+| --- | --- | --- |
+| `reduction: unfolded declarations` | Lean is peeling a `def` open, over and over | Seal it; prove equation lemmas |
+| `reduction: unfolded reducible declarations` | An `abbrev` is being re-inlined | Make it a `def` |
+| `reduction: unfolded instances` | An instance body is being unfolded to compare terms | `inferInstanceAs`, `fast_instance%` |
+| `type_class: used instances` | The same instance is derived again and again | Register it once |
+| `type_class: max synth pending failures` | Nested synthesis is blowing up | Raise `maxSynthPendingDepth`, or simplify the type |
+| `def_eq: heuristic for f a =?= f b` | Unification is guessing on big terms | Supply explicit arguments |
+| `kernel: unfolded declarations` | The kernel is reducing during the final check | Shrink the proof term |
 
-2. **Do not scatter `@[simp]` attributes to make proofs faster.** Each new simp lemma slows every `simp` call in every downstream file. Add simp lemmas only when they belong to a coherent normal form.
+`#count_heartbeats in` is a watermark, not a tuning knob. It suggests the smallest limit of the form `2^k * 200000` that works. Mathlib's own advice: **resist the temptation to set the limit as low as possible** — the library shifts under you, and a tight limit turns someone else's unrelated change into your build failure.
 
-3. **Do not use `native_decide` for trust-critical foundations.** It bypasses kernel verification. Use it for large concrete computations where the mathematical content is clear.
+## Core Principles
 
-4. **Do not `set_option maxHeartbeats 0` in committed code.** This disables the timeout entirely. Use a specific increased value if genuinely needed.
+Ordered. When two conflict, the higher one wins.
 
-5. **Do not optimize without measuring the before and after.** Use `count_heartbeats in` or `set_option profiler true` to confirm the improvement is real.
+1. **Measure before you change.** The tactic that looks slow usually is not. Profile, name the phase, then act. A fix aimed at the wrong phase buys nothing, however sound the advice behind it.
+
+2. **Watch the proof term, not just the tactic.** Tactics are how you write a term; the kernel pays for the term you wrote. A tidy fifty-line proof can build an enormous one. When `type checking` dominates, shrink the term.
+
+3. **Pay a cost once, not once per site.** If a derivation appears in three proofs, give it a name — a lemma, an instance, a `def` — and each proof becomes a reference to that name.
+
+4. **A definition is an interface.** Seal the body; publish lemmas. A definition whose body every downstream proof must unfold is not a definition, it is a macro, and you pay to expand it everywhere.
+
+5. **Give the elaborator less to guess.** Explicit arguments, explicit instances, and canonical instance terms cost you keystrokes and save Lean an exponential search.
+
+6. **Prefer the cheapest tactic that closes the goal.** `exact` over `apply` over `rw` over `simp only` over `simp`. Squeeze search tactics into their explicit results with `simp?` and `aesop?` before you commit.
+
+7. **Shrink the import surface.** Every import adds instances to the search and lemmas to the `simp` database, in your file and in every file that imports yours.
+
+## Failure Smells
+
+| Smell | What it means | Fix |
+| --- | --- | --- |
+| `let x := <heavy term>` in a tactic proof, mentioned in later `have` types | Each `let` is expanded into the proof term, and every `have` above it re-embeds the expansion | Hoist to a top-level `def`; prove named lemmas about it |
+| `convert e using 4` with `HEq` fallbacks | Congruence subgoals over dependent types, and a large term to check | `rw` into shape first, then `exact` |
+| `simpa [proj] using e` on a large structure | Two `simp` runs over a big type plus a defeq check | Rewrite with equation lemmas; `exact` |
+| A 40-line proof that dominates a whole file | Its term, not its tactics | Split it into named lemmas |
+| `dsimp [myDef, myDefData]` in proof after proof | The definition has no equation lemmas | Prove them once; `rw` instead |
+| `def foo : T := by …` where `T` is data | The body is `dite` under `Eq.mpr` motive scaffolding, which nothing reduces cheaply | Write the body in term mode |
+| `abbrev foo := (bar x).1` | Reducible, so Lean re-inlines that term on every defeq check | Make it a `def` |
+| `@[expose]` on a heavy `def` | Every downstream file may unfold the body | Drop it; export lemmas instead |
+| `haveI : C x := by …` in two proofs | This is an `instance` | Register it once |
+| `set_option maxHeartbeats` in a diff | The proof is not finished | Find the real cost |
+| `simp` alone on a line, then `omega` | `simp` scanned the whole database to normalize one `Nat` | `simp only [...]`, or drop it |
+
+## Defaults to Resist
+
+Reaching for these feels like progress. It is not.
+
+- **Blaming the scariest-looking tactic.** The `simp_all` you can see is rarely the `simp_all` that costs. Read the cumulative table, then bisect the file — truncate it after each declaration and time the prefixes. One theorem usually owns almost all of the time, and it is often not the one you expected.
+- **Bumping the heartbeats.** Mathlib has zero real `maxHeartbeats` bumps across 8,245 files, and two linters that reject them. A timeout is a diagnosis, not an obstacle.
+- **`native_decide` to make it go away.** It trusts the whole compiler, not the kernel. Mathlib bans it outright: with it, "it is probably possible to prove `False`."
+- **Reaching for `simp` where `rw` would do.** `simp` searches thousands of lemmas to apply the one you already knew.
+- **Adding a global `instance` for a fact used once.** A true fact is not automatically a good instance. It joins every future search, including the ones where it fails deep and backtracks.
+- **Adding `@[simp]` to fix one proof.** It slows every `simp` in every file downstream, forever.
+- **Stopping when it compiles.** Compiling is the starting line. Re-measure.
+
+## Before Declaring Done
+
+- Re-measure with `#count_heartbeats in`. State the before and after; do not assert an improvement you did not observe.
+- Remove every `set_option` you added to investigate. Committed `trace`, `profiler`, `pp`, and `debug` options are a smell, and Mathlib's `linter.style.setOption` rejects them.
+- No new `maxHeartbeats` bump. If you truly need one, scope it with `in` and write a comment saying why.
+- No `native_decide`, no `set_option maxHeartbeats 0`, no `debug.skipKernelTC` — each trades soundness for speed.
+- `lake build` is clean.
 
 ## References
 
-- `references/profiling-and-diagnostics.md` — profiler options, trace flags, Firefox Profiler integration, `diagnostics` mode, heartbeat counting
-- `references/tactic-performance.md` — tactic selection, simp discipline, typeclass synthesis tuning, avoiding exponential blowup
-- `references/term-size-and-transparency.md` — olean size, proof term bloat, transparency hierarchy, reduction control, `noncomputable`
-- `references/compilation-and-build.md` — Lake parallelism, caching, import structure, module organization, incremental compilation
+- `references/profiling-and-diagnostics.md` — the four tools, the counter-to-fix map, `#count_heartbeats` and `guard_min_heartbeats`, Firefox Profiler
+- `references/definitions-and-instances.md` — sealing definitions, equation lemmas, `abbrev` and `@[expose]`, registering and shaping instances
+- `references/tactic-performance.md` — tactic cost order, `simp` discipline, `convert` and `simpa`, exponential blowup
+- `references/term-size-and-transparency.md` — proof-term size, olean bloat, transparency, `noncomputable`
+- `references/compilation-and-build.md` — Lake parallelism, imports, module layout, incremental builds
+
+## Related Skills
+
+- **`deep-module-design`** — principle 3 is deep-module thinking applied to a definition: a narrow interface over a sealed body. When sealing a definition means redesigning its API, go there.
+- **`optimizing-rust-performance`** — the same measure-first discipline for Rust.

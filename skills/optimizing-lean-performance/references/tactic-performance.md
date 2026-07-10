@@ -1,168 +1,156 @@
 # Tactic Performance
 
-How to choose fast tactics and avoid common performance traps.
+How to pick cheap tactics and avoid the traps.
+
+Before you read this, run the profiler. If the dominant phase is `type checking`, the kernel is the problem and no tactic change here will help — read `term-size-and-transparency.md`. If it is `typeclass inference`, read `definitions-and-instances.md`. This file is for when `elaboration`, `simp`, or `tactic execution` dominate.
 
 ## Table of Contents
 
-1. [Tactic Selection Order](#tactic-selection-order)
+1. [Tactic Cost Order](#tactic-cost-order)
 2. [Simp Discipline](#simp-discipline)
-3. [Typeclass Synthesis](#typeclass-synthesis)
-4. [Expensive `rfl`](#expensive-rfl)
-5. [Mutual-Inductive Proofs](#mutual-inductive-proofs)
-6. [`nontriviality` and Other Slow Tactics](#nontriviality-and-other-slow-tactics)
-7. [Avoiding Exponential Blowup](#avoiding-exponential-blowup)
+3. [Controlling the Simp Set](#controlling-the-simp-set)
+4. [`convert` on Dependent Types](#convert-on-dependent-types)
+5. [`simpa` Pays Twice](#simpa-pays-twice)
+6. [Expensive `rfl` and `decide`](#expensive-rfl-and-decide)
+7. [Mutual-Inductive Proofs](#mutual-inductive-proofs)
+8. [Other Slow Tactics](#other-slow-tactics)
+9. [Exponential Blowup](#exponential-blowup)
 
 ---
 
-## Tactic Selection Order
+## Tactic Cost Order
 
-When multiple tactics can close a goal, prefer the cheapest one. This ordering reflects actual cost, not generality:
+Prefer the cheapest tactic that closes the goal. This order reflects cost, not generality.
 
-### Tier 1: Direct Construction (microseconds)
+### Tier 1: direct construction (microseconds)
 
-- **`exact e`** — supplies a term directly. No search.
-- **`apply f`** — unifies the goal with `f`'s conclusion. One unification.
-- **`constructor`** — applies the unique constructor. One lookup + unification.
-- **`assumption`** — linear scan of the local context.
-- **`rfl`** — kernel definitional equality check. Fast unless the terms are large and require deep reduction (see "Expensive `rfl`" below).
+- `exact e` — supplies the term. No search.
+- `apply f` — one unification against `f`'s conclusion.
+- `constructor` — one lookup and one unification.
+- `assumption` — a linear scan of the local context.
 
-### Tier 2: Decision Procedures (milliseconds)
+### Tier 2: decision procedures (milliseconds)
 
-- **`omega`** — linear integer/natural arithmetic. Fast and produces small proof terms (abstracts into auxiliary definitions). Preferred over `simp` or `decide` for `Nat`/`Int` inequality goals.
-- **`norm_num`** — extensible numeric normalization. Detects non-applicability early and exits fast.
-- **`decide`** — evaluates a `Decidable` instance in the kernel. Fine for small computations (e.g., `2 + 2 = 4`, small list membership). Becomes expensive for large computations because the kernel must evaluate every step.
-- **`native_decide`** — compiles the `Decidable` instance to native code. Fast for large computations but trusts the compiler (bypasses kernel verification). Do not use for trust-critical foundations.
+- `omega` — linear `Nat`/`Int` arithmetic. Fast, and it abstracts its proof into an auxiliary definition, so the proof term stays small.
+- `norm_num` — numeric normalization. Exits early when it does not apply.
+- `ring` — commutative ring identities. Fast; slows on very large expressions, so factor them.
+- `decide` — evaluates a `Decidable` instance **in the kernel**. Fine for `2 + 2 = 4`. The cost grows with the computation, and it lands in the `type checking` phase where no tactic tuning reaches it.
 
-### Tier 3: Rewriting (milliseconds to seconds)
+### Tier 3: rewriting (milliseconds to seconds)
 
-- **`dsimp`** / **`dsimp only [...]`** — applies only definitional rewrite rules (proof is `rfl`). Cheaper than `simp` because it skips the discrimination tree lookup for non-definitional lemmas.
-- **`simp only [lemma₁, lemma₂, ...]`** — applies a specific lemma set. Skip discrimination tree scan of the full database.
-- **`rw [lemma]`** / **`rewrite [lemma]`** — single directed rewrite. Cheaper than `simp` when you know exactly which lemma to apply.
+- `rw [lemma]` — one directed rewrite. Use it when you know the lemma.
+- `dsimp only [...]` — definitional rewrites only; the proof is `rfl`.
+- `simp only [...]` — a fixed lemma set. No database scan.
 
-### Tier 4: Search (seconds)
+### Tier 4: search (seconds)
 
-- **`simp`** — searches the entire simp lemma database. Cost scales with database size and term complexity. Always convert to `simp only [...]` via `simp?` before committing.
-- **`aesop`** — best-first proof search over registered rules. Use `aesop?` to extract the explicit proof.
-- **`convert e`** — creates unification subgoals. Prefer `refine`/`exact` after manual `rw` steps.
+- `simp` — scans the whole simp database through discrimination trees.
+- `aesop` — best-first proof search.
+- `convert` — generates congruence subgoals. See below.
+
+`native_decide` does not appear here. It compiles the goal and trusts the result, bypassing the kernel. Mathlib bans it: its linter notes that "it is probably possible to prove `False` using `native_decide`." Do not reach for it to make a slow `decide` fast; make the computation smaller instead.
 
 ## Simp Discipline
 
-Bare `simp` is the most common cause of slow proofs. Follow these rules:
+Bare `simp` is the most common avoidable cost in a proof.
 
-1. **Use `simp?` to extract `simp only [...]`.** Always do this before committing. The explicit lemma list is faster (no database scan) and stable across mathlib versions.
+1. **Squeeze it.** `simp?` prints the `simp only [...]` it actually used. Commit that. It skips the database scan, and it will not silently change behavior when Mathlib adds a lemma next month.
 
-2. **Use `dsimp` before `simp`** when the goal has definitional equalities. This handles the cheap rewrites first, leaving `simp` with a simpler goal.
+2. **`dsimp` before `simp`** when the goal has definitional equalities. `dsimp` handles the cheap rewrites, leaving `simp` a smaller goal.
 
-3. **Keep simp lemma lists minimal.** Every lemma in `simp only [...]` is tried against every subexpression. Ten unnecessary lemmas can double the cost.
+3. **Keep lemma lists short.** Every lemma in `simp only [...]` is tried against every subterm.
 
-4. **Avoid `simp` in a loop.** `simp` inside `repeat`, `iterate`, or a recursive tactic compounds the cost. Use `simp` once, then switch to targeted rewrites.
+4. **Never `simp` in a loop.** `repeat simp` and `iterate simp` compound the cost. Simplify once, then rewrite.
 
-5. **Use `simp (config := { singlePass := true })`** when you suspect looping. Single-pass mode applies each rule at most once per subexpression.
+5. **Never pass a recursive function to `simp`.** `simp [myRecursiveFn]` unfolds one step, produces a goal `simp` cannot close, and you still pay for the failed match. Prove per-constructor `@[simp]` equations instead.
 
-6. **Do not add `@[simp]` attributes casually.** Each new simp lemma slows every bare `simp` call in every downstream file. A simp lemma should belong to a coherent normal form — it should always simplify, never just rewrite to an equivalent form.
+6. **Do not add `@[simp]` to fix one proof.** Each new simp lemma slows every bare `simp` in every downstream file. A simp lemma belongs to a normal form: its right side must always be simpler, not merely different.
 
-## Typeclass Synthesis
+7. **Watch for `simp` before `omega`.** A bare `simp` that normalizes one `Nat` subterm scanned thousands of lemmas to do it. Drop it, or name the lemma.
 
-Typeclass inference can be the dominant cost in files with deep algebraic hierarchies (common with mathlib).
+## Controlling the Simp Set
 
-### Diagnosing slow synthesis
+When a lemma in the default set is expensive or wrong for one proof, do not restructure the library — scope the change:
 
 ```lean
-set_option trace.Meta.synthInstance true in
-set_option synthInstance.maxHeartbeats 20000 in  -- default
+-- Remove an expensive lemma for one declaration.
+attribute [-simp] eqToHom_op in
+theorem my_theorem : ... := by simp
+
+-- Give a broad lemma low priority so it is tried last.
+@[simp low] theorem broad_rewrite : ... := ...
+
+-- Give a cheap, always-right lemma high priority.
+@[simp high] theorem canonical_form : ... := ...
 ```
 
-Look for:
+Mathlib uses `attribute [-simp] … in` 23 times and `@[simp high]` 93 times. Both are ordinary tools, not hacks.
 
-- The same goal attempted many times (indicates backtracking).
-- Long instance chains (10+ steps to resolve).
-- Instances that match the head but fail deep in unification.
+## `convert` on Dependent Types
 
-### Fixing slow synthesis
+`convert e using n` unifies the goal with `e`'s type and leaves the mismatches as subgoals. Over dependent types — `Fin (d + 1)`, `HEq`, indexed families — those subgoals are congruence and heterogeneous-equality obligations over large terms, and the `using` depth controls how many it generates.
 
-1. **Provide the instance explicitly.** A local instance binding short-circuits the search:
+This is expensive:
 
-    ```lean
-    haveI : Monoid α := inferInstance  -- resolved once, reused below
-    ```
+```lean
+convert hzero using 2 <;> first | rfl | exact HEq.rfl | exact congrArg f h
+```
 
-2. **Use `letI`, `haveI`, or `@[local instance]`** to add a fast path for a specific proof or section without polluting
-   the global database. Use `haveI` for opaque proof facts, `letI` when later reduction should see the instance body,
-   and `attribute [local instance] existingLemma` when a named theorem should be available only in the current scope.
+Each generated subgoal runs several definitional-equality attempts through that `first` alternation. Prefer to rewrite the goal into shape first, then close it exactly:
 
-3. **Escalate repeated local fixes into API design.** A true fact is not automatically a good global instance. If the
-   fact is broad, expensive, or creates competing search paths, expose it as a named theorem or constructor and install
-   it locally only where needed. If it must be global, give broad derived instances low priority:
+```lean
+rw [index_eq, dim_eq]
+exact hzero
+```
 
-    ```lean
-    instance (priority := 100) : SomeBroadClass A := ...
-    ```
+If you need `convert`, use the smallest `using` depth that works.
 
-4. **Avoid overlapping inherited data.** Before making one class extend another, check whether both classes carry fields
-   such as zero morphisms, scalar actions, order structure, topology, or category structure. Competing inherited data can
-   make `infer_instance`, `simp`, and definitional equality fragile.
+## `simpa` Pays Twice
 
-5. **Cap synthesis budgets locally** when a proof touches a pathological hierarchy:
+`simpa [lemmas] using e` simplifies the goal, simplifies the type of `e`, and then checks the two agree. On a large structure — where `lemmas` are projections like `Cell.index` and `Cell.dim` — that is two full `simp` runs over a big type plus a definitional-equality check.
 
-    ```lean
-    set_option synthInstance.maxHeartbeats 10000 in
-    set_option synthInstance.maxSize 400 in
-    ```
+When the projections have equation lemmas, `rw` them and use `exact`.
 
-6. **Reduce instance search depth.** If the profiler shows synthesis trying instances that clearly cannot apply, the
-   hierarchy may need restructuring. Use `Mathlib/CategoryTheory/Abelian/Basic.lean` as an exemplar: theorem statements
-   require structure they genuinely need, proof-only structure is local, broad derived instances are low-priority, and
-   risky facts remain named theorems rather than global instances.
+## Expensive `rfl` and `decide`
 
-## Expensive `rfl`
+`rfl` asks the **kernel** to normalize both sides. `decide` asks the kernel to evaluate a `Decidable` instance. Both land in the `type checking` phase. They get expensive when the terms involve:
 
-`by rfl` (or `rfl` as a term) asks the kernel to check definitional equality by normalizing both sides. If the terms involve:
+- well-founded recursion (the kernel unfolds the termination proof),
+- large nested structures,
+- long computation chains.
 
-- Well-founded recursion (WF termination proofs are unfolded)
-- Large nested structures
-- Deep computation chains
+Alternatives, in order of preference:
 
-then `rfl` can be very expensive. Alternatives:
-
-- **`native_decide`** for concrete decidable equalities.
-- **`omega`** for arithmetic equalities.
-- **`simp only [...]`** to rewrite to a common form, then close with `rfl` on simpler terms.
-- **Mark the definition `@[irreducible]`** so the kernel cannot unfold it during `rfl`. Provide API lemmas instead.
+- `omega` for arithmetic equalities.
+- `simp only [...]` to reach a common form, then `rfl` on small terms.
+- Equation lemmas, so nothing has to reduce at all.
+- `@[irreducible]` on the definition — but note this constrains the *elaborator*, not the kernel. The kernel unfolds what it must regardless. Only a smaller proof term shrinks kernel time.
 
 ## Mutual-Inductive Proofs
 
-Mutual inductives create performance traps that do not arise with ordinary inductive types.
+Mutual inductives create traps ordinary inductives do not.
 
-### `cases` vs `induction`
+**`cases` over `induction` when a case split is all you need.** `induction` on a member of a mutual family invokes a recursor that carries one motive per member, so Lean elaborates and instantiates all of them even when your goal names one type. `cases` splits on the constructors and nothing else. If the proof genuinely recurses, write it as a `mutual` block of theorems and let each call the others by name.
 
-For commutation lemmas over mutual inductives (e.g., weakening commutes with substitution), prefer `cases` at the top level with explicit recursive calls to the theorem itself (which Lean's `mutual` block handles). Using `induction` forces Lean to synthesize a motive over the full mutual inductive, which can be very expensive — sometimes the motive synthesis alone exceeds the heartbeat budget.
+**Size the blocks.** Every member of a `mutual` block elaborates in one shared context. A block of 20 lemmas where 5 genuinely need each other makes the other 15 pay for nothing. Split it.
 
-### Mutual block sizing
+**Prove per-constructor equations.** See rule 5 under Simp Discipline; this is where it bites hardest.
 
-Each `mutual` block elaborates all its members together in a shared context. If a mutual block contains 20 lemmas but only 5 genuinely need mutual recursion, the other 15 pay the elaboration cost for nothing.
+## Other Slow Tactics
 
-Split mutual blocks to contain only the lemmas that need each other. If `weakenAt_substAt` for ValueTerm, CompTerm, ValueType, and CompType form a genuine mutual family, put them in their own block — not alongside unrelated lemmas.
+- `nontriviality` — a convenience wrapper. Use `rcases subsingleton_or_nontrivial α` instead.
+- `field_simp` — expensive on complex fractions. Consider directed `rw`s.
+- `fun_prop` and other Aesop-based tactics — replacing them with the explicit lemma is almost always possible and cuts time appreciably. Discharging the goal with `assumption` or `rfl` *before* invoking Aesop also helps.
+- `aesop` — squeeze it with `aesop?` and commit the script.
 
-### Per-constructor simp
+## Exponential Blowup
 
-Never pass a recursive function name directly to `simp` (e.g., `simp [substAt]`). This unfolds the function one step, produces a large goal that `simp` cannot close, and the failed rewrite still costs heartbeats for the whnf check. Instead, prove per-constructor `@[simp]` lemmas (`substAt_boundVar`, `substAt_pair`, etc.) and use `simp only` with those.
+Four causes, in rough order of frequency:
 
-## `nontriviality` and Other Slow Tactics
+1. **Typeclass backtracking.** An instance matches the head, fails deep in unification, backtracks, and the next one fails the same way. Supply the instance. See `definitions-and-instances.md`.
 
-Some tactics are convenience wrappers with high overhead:
+2. **Simp looping.** Two lemmas rewrite back and forth. Orient them consistently, or drop one. `set_option linter.loopingSimpArgs true` detects the cycle by simplifying each candidate's right side; it is expensive, so enable it only while diagnosing.
 
-- **`nontriviality`** — replace with `rcases subsingleton_or_nontrivial α`.
-- **`field_simp`** — can be expensive on complex fraction goals. Consider manual `rw` with specific lemmas.
-- **`ring`** — generally fast, but can slow down on very large expressions. Factor the expression into named subterms.
+3. **Unification over large terms.** `isDefEq` on terms with shared subexpressions explores exponentially many paths once sharing is lost. Keep `let` bindings to preserve it. The diagnostics counter `def_eq: heuristic for f a =?= f b` counts these.
 
-## Avoiding Exponential Blowup
-
-The most common causes of exponential behavior:
-
-1. **Typeclass backtracking.** An instance matches the head, fails deep in unification, backtracks, and tries the next instance — which also fails. Fix: provide the instance explicitly.
-
-2. **Simp looping.** A pair of lemmas rewrites back and forth: `a = f(a)` and `f(a) = a`. Fix: orient lemmas consistently, or use `simp only` with one of them.
-
-3. **Unification with large terms.** `isDefEq` on terms with shared subexpressions can explore an exponential number of paths if sharing is lost. Fix: factor into `let` bindings to preserve sharing.
-
-4. **Recursive tactic combinators.** `repeat (simp; ring)` can run indefinitely. Use `iterate N` with a bound, or restructure.
+4. **Recursive tactic combinators.** `repeat (simp; ring)` can run forever. Bound it with `iterate n`, or restructure.

@@ -28,7 +28,9 @@ lake build -j8
 lake build -j$(nproc)
 ```
 
-The `LEAN_NUM_THREADS` environment variable controls the Lean runtime's internal thread pool (defaults to logical CPU count). This affects within-file parallelism for things like async elaboration.
+The `LEAN_NUM_THREADS` environment variable controls the Lean runtime's internal thread pool (defaults to logical CPU count).
+
+Within a single file, `Elab.async` elaborates independent declarations on several threads. Its registered default is `false`, but both the language server and the command line override it to `true`, so you already have it. Turning it off (`-DElab.async=false`) is a debugging move: it makes profiler output easier to read by serializing the work.
 
 ### Maximizing build parallelism
 
