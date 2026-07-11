@@ -37,11 +37,16 @@ You are auditing a module or crate before design changes begin. Your job is to u
     - Temporal coupling (ordering enforced by convention, not structure)
     - Information loss (abstraction discards information callers need)
 
+    If the target is a body of Lean proofs, also consider the proof-design pressures: statement not fixed / wrong kind
+    of comparison; theorem collapsed onto a forgetful object (substantive only after passing to a quotient or
+    invariant); monolithic proof that needs decomposition into lemmas; lemma-itis (a forest of shallow `aux`/`helper`
+    lemmas).
+
     Name the specific pressure. Don't say "general complexity."
 
 4. **List the independent concerns.** For each major public type or trait in the module, list what independent things it handles. Flag any type that handles more than one independently-varying concern.
 
-5. **Check for complecting patterns.** If the changed files are Rust, read `references/rust-patterns.md`; if Lean 4, read `references/lean4-patterns.md`. For Lean changes, also remind yourself of the Lean-side `AGENTS.md` — and load a dedicated proof-writing workflow if proof obligations are involved. Look for:
+5. **Check for complecting patterns.** If the changed files are Rust, read `references/rust-patterns.md`; if Lean 4, read `references/lean4-patterns.md`. If the Lean change involves proof obligations, also read `references/lean-proof-decomposition.md` and run the level audit and kind-of-comparison checks before constraining the design. Look for:
 
     - State + identity braided
     - Mechanism + policy braided

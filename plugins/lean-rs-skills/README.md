@@ -8,7 +8,7 @@ Each skill is self-contained under `skills/<name>/`: a lean `SKILL.md` plus `ref
 
 | Skill | What it's for | Bundled agents |
 | --- | --- | --- |
-| **deep-module-design** | Designing Rust/Lean modules, crates, namespaces, or APIs: public/private boundaries, refactoring surface area, facade crates, information hiding, single-implementor traits. | `pre-design-audit`, `post-design-verify` |
+| **deep-module-design** | Designing Rust/Lean modules, crates, namespaces, or APIs: public/private boundaries, refactoring surface area, facade crates, information hiding, single-implementor traits. Also designing Lean proofs (theorem/lemma/definition decomposition, stating theorems the way a mathematician would, mathematical alignment). | `pre-design-audit`, `post-design-verify` |
 | **optimizing-rust-performance** | Measurement-driven Rust performance work: throughput, allocations, memory footprint, cache locality, hot-path cloning, layout, hashing, pipeline latency, profiling, benches, regressions. | — |
 | **optimizing-lean-performance** | Lean 4 performance: slow elaboration, heartbeat limits, typeclass loops, simp timeouts, large oleans, slow Lake builds, term bloat, module parallelism. | — |
 | **technical-writing** | Writing, revising, or reviewing prose: docstrings, comments, mathematical exposition, issues, design docs, PR summaries, READMEs, commit messages. | `edit` |

@@ -1,6 +1,6 @@
 ---
 name: deep-module-design
-description: 'Use for designing Rust/Lean modules, crates, namespaces, or APIs: public/private boundaries, refactoring surface area, facade crates, information hiding, single-implementor traits.'
+description: 'Use for designing Rust/Lean modules, crates, namespaces, or APIs: public/private boundaries, refactoring surface area, facade crates, information hiding, single-implementor traits. Also for designing Lean proofs — theorem/lemma/definition structure, splitting a proof into lemmas, stating theorems the way a mathematician would, proof decomposition and mathematical alignment.'
 ---
 
 # Deep Module Design
@@ -11,6 +11,7 @@ This skill helps you design modules that are deep and simple (not complected), r
 
 - `references/rust-patterns.md` — Rust idioms.
 - `references/lean4-patterns.md` — Lean 4 idioms (mirrors the Rust file slot-for-slot).
+- `references/lean-proof-decomposition.md` — when the module is a body of Lean proofs, the mathematical-alignment layer that the software principles don't cover. See "Proofs as Modules" below.
 
 ## Defaults to Resist
 
@@ -237,9 +238,34 @@ Each smell indicates a specific design problem. Don't fix the smell — fix the 
 
 ## Proofs as Modules
 
-A theorem-and-proof is a deep module. The statement is the interface; the proof is the implementation; a lemma is a function. Depth ratio, classitis, cost-is-interface, complecting, and "design it twice" all carry over. _Lemma-itis_ is the proof analogue of classitis. _Tactic soup_ is the proof analogue of stop-when-it-compiles. \_Reflexive `Type_` polymorphism\* is the proof analogue of reflexive abstraction. Tao's rule for lemma statements — \*"easy to use, not easy to prove"\* — is "the cost is the interface, not the implementation" in proof clothing.
+A theorem-and-proof is a deep module. The statement is the interface; the proof is the implementation; a lemma is a function. Depth ratio, classitis, cost-is-interface, complecting, and "design it twice" all carry over. _Lemma-itis_ is the proof analogue of classitis. _Tactic soup_ is the proof analogue of stop-when-it-compiles. _Reflexive `Type*` polymorphism_ is the proof analogue of reflexive abstraction. Tao's rule for lemma statements — _"easy to use, not easy to prove"_ — is "the cost is the interface, not the implementation" in proof clothing.
 
-The proof-engineering disciplines that carry this over — structured `have` / `suffices` / `calc` proofs, the Lamport-primitive ↔ Lean-tactic mapping, and the "tactic soup" default — are the subject of separate proof-writing guidance.
+**When the module you are designing is a body of Lean proofs, mathematical alignment governs.** The theorems, lemmas, and definitions must be what a mathematician would use, and split the way a mathematician would split them. The software principles above are blind to a second axis: a proof can be deep, uncomplected, and `lake build`-green while proving the _wrong mathematical thing_ or decomposing the work in a way no mathematician would recognize. Where the mathematical frame and a generic software heuristic conflict, **the mathematics wins** — a definition a mathematician recognizes instantly (e.g. via its universal property) beats a "deeper" but unrecognizable encoding.
+
+The existing principles transfer with the right reading:
+
+| deep-module principle | proof-decomposition reading |
+| --- | --- |
+| Interface must be right before implementation | Fix the **statement** first: ambient assumptions and the _kind of comparison_ (`=`, `≅`, `≃`, `⊆`, `→`) stated before use |
+| Deep module hides complexity behind a simple interface | Tao: state a lemma _"easy to use, not easy to prove"_ |
+| Pull complexity downward | The top-level proof reads as **assembly** of already-proved lemmas, not a fresh attack |
+| Hide decisions that might change | milestone proposition vs local lemma vs sublemma — each removes **one** source of difficulty |
+| Interface reflects multiple uses; functionality reflects current needs (§6) | Lemma **generality is dictated by callers**, not by the proof's convenience |
+| Stop-when-it-compiles is your sharpest bias | **Closing ≠ correct** (Lamport confirmation bias): closing the goal is your training signal |
+| _(no software analogue)_ | **Level audit / forgetful-object test**: is the statement substantive on the _exact_ object, or trivialized onto a quotient/invariant/stand-in? |
+
+Proof-specific smells (kept here rather than in the language-neutral Failure Smells table):
+
+| Smell | What it means | Fix direction |
+| --- | --- | --- |
+| Theorem is immediate once you pass to a quotient/invariant | Forgetful-object collapse; not the intended math | Restate on the object that still carries the content, or classify as tautological-at-this-level |
+| Equality claimed where only isomorphism holds | Kind-of-comparison mismatch | Restate with `≅` / `≃`; use `=` only with a chosen strict representative |
+| Top-level proof still a heroic direct attack after decomposition | Decomposition unfinished | Name the missing milestone/local lemma so the top level becomes assembly |
+| Lemma stated for ease of proof, not ease of use | Interface shaped by the implementation | Restate with natural hypotheses and a manifestly useful conclusion (Tao) |
+| Lemma doing several unrelated jobs / can't be named in one sentence | Under- or over-split decomposition | One source of difficulty per lemma; merge or split accordingly |
+| Reflexive `Type*` generality with unused typeclass constraints | Generality serving the proof, not a caller | State at the type used; generalize when a real second caller arrives |
+
+For the full discipline — the level audit, the unit-of-work taxonomy, the Leron/Lamport acceptance tests, and the structured-proof mechanics (statement-first `have` / `suffices` / `calc`, the Lamport-primitive ↔ Lean-tactic mapping) — read `references/lean-proof-decomposition.md`. The tactic-driving loop itself is the `lean-proof` skill (see Related Skills).
 
 ## Before Declaring Done
 
@@ -266,6 +292,15 @@ You stop too early by default. The diff compiling is not the finish line. Run th
 - [ ] Read 2–3 callers of the changed API. Did they get simpler, or just different? "Different" is not progress.
 - [ ] Change amplification reduced: a future logical change of the same kind would touch fewer files than before.
 
+**Proof gate** (when the deliverable is Lean proofs — see "Proofs as Modules"):
+
+- [ ] Statement fixed before the proof: ambient assumptions stated and the _kind of comparison_ (`=`, `≅`, `≃`, `⊆`, `→`) named.
+- [ ] Level audit passed: the theorem is substantive on the _exact_ object, not trivialized onto a forgetful quotient/invariant/stand-in.
+- [ ] Each lemma removes one source of difficulty and is stated use-first (natural hypotheses, useful conclusion), not for the convenience of its proof.
+- [ ] The top-level proof reads as assembly of already-proved lemmas, not a heroic direct attack.
+- [ ] Leron-test passes: read at speed, skipping subclaim bodies, the proof still reads as mathematics.
+- [ ] Confirmation-bias check: the proof was checked against the intended mathematics, not accepted merely because `lake build` is green.
+
 **Language gate:**
 
 - Rust: `cargo clippy -p <crate>` and `cargo nextest run -p <crate>`.
@@ -287,8 +322,10 @@ Read these only when you need the full theory or concrete patterns:
 - `references/design-principles.md` — Full treatment of Ousterhout's deep module theory and Hickey's simplicity framework. Read when you need to justify a design decision or think through a novel tradeoff.
 - `references/rust-patterns.md` — Concrete Rust patterns of complecting with decomplected alternatives.
 - `references/lean4-patterns.md` — The same 10 patterns rendered in Lean 4 idioms (`private`, indexed types, bundled structures, `Finset`).
+- `references/lean-proof-decomposition.md` — designing Lean _proofs_ (theorems, lemmas, definitions) so they match the mathematics: level audit, unit-of-work taxonomy, use-first lemmas, assembly, the Leron/Lamport tests, and structured-proof mechanics.
 
 ## Related Skills
 
 - `technical-writing` — when the deliverable is the prose around the design (docstrings, design docs, PR rationale).
 - `test-engineering` — when the boundary problem surfaces as tests coupled to internals.
+- `lean-proof` — once the proof decomposition and statement-first skeleton are in place, hand the tactic-driving loop off here (one step at a time, error-priority ordering, hardest case first, dependent-rewrite fixes). This skill designs the proof; `lean-proof` writes it.

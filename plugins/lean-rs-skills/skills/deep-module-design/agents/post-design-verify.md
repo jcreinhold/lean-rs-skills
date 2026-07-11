@@ -46,6 +46,13 @@ You are verifying a design change after implementation. Your job is to confirm t
     - Were any error paths defined out of existence?
     - Did the change reduce change amplification (fewer places to edit for a single logical change)?
 
+    If the change is a body of Lean proofs, verify the mathematical alignment, not just that `lake build` is green
+    (closing the goal is not evidence of correctness). Read `references/lean-proof-decomposition.md` and check:
+
+    - The top-level proof reads as assembly of already-proved lemmas, not a heroic direct attack.
+    - Lemmas are stated use-first (natural hypotheses, useful conclusion), each removing one source of difficulty.
+    - The statement matches the intended mathematics: the level audit passes (substantive on the exact object, not a forgetful quotient/invariant) and the kind of comparison is correct (no equality claimed where only isomorphism holds).
+
 5. **Run the language-appropriate build and tests.**
 
     For Rust changes:
@@ -109,5 +116,6 @@ The verification fails if any of these are true:
 - Callers got more complex (more concepts to learn, more code, more error handling)
 - The change added public items without proportional new capability
 - Tests or clippy fail
+- For Lean proofs: the top-level proof is still a heroic direct attack, a lemma is stated for ease of proof rather than use, or the statement is misaligned with the intended mathematics (forgetful-object collapse or kind-of-comparison mismatch)
 
 A "PASS WITH NOTES" is appropriate when the design improved overall but left minor items for follow-up.
