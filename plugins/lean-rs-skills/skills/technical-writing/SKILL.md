@@ -5,48 +5,22 @@ description: 'Use for writing, revising, or reviewing prose: docstrings, comment
 
 # Technical Writing
 
-Help the reader understand. Everything else serves that.
+Make the reader understand.
 
-## When to use
+Read `references/on-writing.md` before editing. Also read `references/on-writing-mathematics.md` for mathematical text. Use `deep-module-design` for proof structure and `proof-review` for adversarial proof review.
 
-- Writing or revising prose in `docs/`, design documents, or READMEs
-- Improving comments and docstrings for clarity and rationale
-- Drafting or editing issues, PR summaries, blocker reports, commit messages
-- Writing or revising mathematical exposition that is not itself a proof
-- Any text a human will read and that matters
+## Edit
 
-## When not to use
+1. Read the full target and enough context to preserve its meaning.
+2. Identify audience and purpose.
+3. Remove a buried main point, vague references, undefined terms, repeated claims, code-restating comments, and paragraphs with more than one job.
+4. Preserve claims and technical distinctions. Define a needed term on first use; replace a code comment with its reason or remove it.
+5. Show a diff for local edits. For a full rewrite, give the revised text and a brief account of material changes.
 
-- Formal proof writing, theorem-proof blocks, or proof decomposition
-- Adversarial review of a finished proof
-- Setting or revising the mathematical center of the work, not the prose around it
+## Review Only
 
-## What to read first
+Report each problem with its location and a fix. Do not rewrite unless asked.
 
-Before editing prose, read the references that set the standard:
+## Subagent
 
-1. [references/on-writing.md](./references/on-writing.md) — universal prose craft, then technical documentation, then comments
-2. [references/on-writing-mathematics.md](./references/on-writing-mathematics.md) — read this as well when the text carries mathematical content
-
-These are the baseline. Local convenience does not override them.
-
-## Workflow
-
-### Edit (default)
-
-1. Read the target text and enough surrounding context to know what must not change — the relevant `AGENTS.md`, the local `README.md`, adjacent definitions or theorems.
-2. Read the references above.
-3. Identify the audience and the purpose. A docstring serves callers; a design doc serves reviewers; a commit message serves the next person who blames the line.
-4. Find the real problems: buried lede, vague pronouns, jargon used without inline definition, redundancy, comments that restate code, paragraphs doing more than one job.
-5. Rewrite. Preserve every claim and technical distinction exactly. Change structure, word choice, sentence construction, paragraph breaks. Add a brief inline definition the first time a term appears. Replace a code-restating comment with rationale, or delete it.
-6. Show the before/after for localized changes. For substantial rewrites, show the revised text with a short note on what changed and why.
-
-### Review only
-
-When asked to review without editing, report each problem in place — location, what is wrong, how to fix it — and stop. Reporting is the deliverable.
-
-## Subagents
-
-For minimal prose-only edits, use the local worker:
-
-- [`agents/edit.md`](./agents/edit.md) — reads the references, identifies prose problems, rewrites for clarity and precision.
+Use [`agents/edit.md`](./agents/edit.md) for small prose-only edits.

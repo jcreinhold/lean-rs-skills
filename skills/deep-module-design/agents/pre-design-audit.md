@@ -6,92 +6,34 @@ tools: Read, Grep, Glob, Bash
 
 # Pre-Design Audit Agent
 
-Dispatch this agent before starting design work on a module, crate, or API. It classifies the design pressure, identifies complecting risks, and produces a constraint set.
+Read the target and immediate callers. If the target is unclear, ask. Run:
 
-## Task
-
-You are auditing a module or crate before design changes begin. Understand the current state and produce constraints that keep the design from getting worse.
-
-## Steps
-
-1. **Identify the target.** Read the module or crate the user is about to change. If the path is unclear, ask.
-
-2. **Run the audit script.**
-
-    ```bash
-    bash skills/deep-module-design/scripts/audit-module.sh <path>
-    ```
-
-    Run this from the plugin root. In Claude Code, `${CLAUDE_PLUGIN_ROOT}/skills/...` is also valid when you are outside
-    the plugin root.
-
-    The dispatcher auto-selects the Rust or Lean backend based on the target's extension and project layout. Record the
-    output. Note the depth estimate (LOC / public items) and any warnings.
-
-3. **Classify the design pressure.** Which of these applies?
-
-    - Shallow module (interface nearly as complex as implementation)
-    - Leaky abstraction (callers must know internals)
-    - Complected concerns (independent things braided into one type/module)
-    - Growing surface (pub items accumulating without proportional capability)
-    - Temporal coupling (ordering enforced by convention, not structure)
-    - Information loss (abstraction discards information callers need)
-
-    If the target is a body of Lean proofs, also consider the proof-design pressures: statement not fixed / wrong kind
-    of comparison; theorem collapsed onto a forgetful object (substantive only after passing to a quotient or
-    invariant); monolithic proof that needs decomposition into lemmas; lemma-itis (a forest of shallow `aux`/`helper`
-    lemmas).
-
-    Name the specific pressure. Don't say "general complexity."
-
-4. **List the independent concerns.** For each major public type or trait in the module, list what independent things it handles. Flag any type that handles more than one independently-varying concern.
-
-5. **Check for complecting patterns.** If the changed files are Rust, read `references/rust-patterns.md`; if Lean 4, read `references/lean4-patterns.md`. If the Lean change involves proof obligations, also read `references/lean-proof-decomposition.md` and run the level audit and kind-of-comparison checks before constraining the design. Look for:
-
-    - State + identity braided
-    - Mechanism + policy braided
-    - Storage + domain logic braided
-    - Caller knowledge leaked into module
-    - Generic wrapper where specific type is known
-    - Temporal steps disguised as API ordering
-
-6. **Assess depth.** Is the module deep (simple interface, complex internals) or shallow (complex interface, little hidden)? Use the audit script's depth estimate as a starting point, but also consider:
-
-    - How many use cases do the public methods serve?
-    - How much implementation detail is hidden?
-    - Could a caller use this module without reading the source?
-
-7. **Produce the constraint set.** Output a structured report:
-
+```bash
+bash skills/deep-module-design/scripts/audit-module.sh <path>
 ```
-## Pre-Design Audit: <module name>
+
+Name the main pressure: shallow surface, leaked detail, mixed concerns, growing surface, temporal coupling, or information loss. For Lean proofs, also check statement level, comparison kind, and needed decomposition.
+
+List independent concerns in each changed public type. Read the Rust or Lean patterns file; read proof decomposition for proof work. Do not propose an implementation.
+
+Return:
+
+```markdown
+## Pre-Design Audit: <module>
 
 ### Design Pressure
-<one of the six categories, with specific evidence>
+<one pressure and evidence>
 
-### Current Depth
+### Current Surface
 - Public items: N
-- Depth estimate: M LOC/pub
-- Assessment: deep / shallow / mixed
+- Audit result: <result>
 
-### Complecting Risks
-- <specific risk 1>
-- <specific risk 2>
+### Risks
+- <risk>
 
-### Constraints for This Change
-1. <constraint — e.g., "do not add pub methods that serve only one caller">
-2. <constraint — e.g., "separate validation logic from storage access">
-3. <constraint — e.g., "preserve the split wrapper types, don't fall back to OpenTerm">
+### Constraints
+1. <constraint>
 
-### Applicable Principles
-- <which design principles from the skill are most relevant>
-
-### Cross-Skill Concerns
-- <if the change touches kernel boundary, mathematical structure, etc., name the other skill to consult>
+### Related Skills
+- <skill, if needed>
 ```
-
-## What NOT to do
-
-- Don't propose the solution. That's the implementer's job. You provide constraints.
-- Don't audit the entire codebase. Focus on the module being changed plus its immediate callers.
-- Don't flag issues that aren't relevant to the planned change.

@@ -1,25 +1,7 @@
 # Failure Smells
 
-## Example-heavy, contract-light
-
-If many tests differ only by fixture values, you may be enumerating a law badly. Replace them with one property test if the oracle is uniform.
-
-## Assertion too weak
-
-`assert!(result.is_err())` is often not enough. If the contract is a specific rejection reason, check the variant or a stable diagnostic fact.
-
-## Assertion too brittle
-
-Full snapshots of volatile diagnostics, formatting, or internal IR make harmless refactors painful. Keep only the stable part of the contract.
-
-## Helpers that hide the test
-
-If a helper hides what the test checks behind an opaque call, it does too much. Helpers should remove repetition, not obscure the invariant.
-
-## Duplicate coverage at multiple layers
-
-If a local invariant is tested in unit, integration, and end-to-end form with no different bug class caught at each layer, delete the most expensive duplication.
-
-## Performance disguised as correctness
-
-Loops, giant random cases, or timing assumptions inside `#[test]` usually mean you chose the wrong surface. Move that concern into a bench or profile.
+- Examples without a contract: add an invariant or law.
+- Weak or brittle assertion: assert a stable, relevant fact.
+- Helper hides the assertion: inline the key check.
+- Same bug covered at many layers: keep the most diagnostic test.
+- Timing loop in a correctness test: use a benchmark or profile.

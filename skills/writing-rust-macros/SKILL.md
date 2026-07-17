@@ -5,105 +5,44 @@ description: Use for Rust macros — declarative (macro_rules!) and procedural (
 
 # Writing Rust Macros
 
-Rust macros eliminate repetitive code that functions and generics cannot abstract.
+Use a macro only when a function or generic cannot express the job. Read `references/macro-patterns.md` before writing one.
 
-**Core principle:** Plan the architecture before writing a single rule. Decide declarative vs procedural _first_ — switching midway wastes effort.
+## Choose the Tool
 
-See `references/macro-patterns.md` for the full pattern reference (fragment specifiers, named patterns, proc macro structure).
+| Need | Tool |
+| --- | --- |
+| Uniform repetition, type lists, variadic syntax, call-site `file!()`/`line!()` | `macro_rules!` |
+| Inspect fields, parse attributes, or make per-item choices | Proc macro |
+| Identifier joining or case conversion | `macro_rules!` with `paste`, or a proc macro if other logic needs it |
 
 ## Workflow
 
-1. **Decide** — Walk the decision flowchart below. Choose `macro_rules!` or proc macro _before_ writing code.
-2. **Plan** — For `macro_rules!`: sketch parse→emit phases. For proc macros: sketch parse+transform split.
-3. **Write** — Implement using patterns from `macro-patterns.md`.
-4. **Verify expansion** — `cargo expand` (or `cargo expand module::name`). Invisible bugs are common.
-5. **Test** — For proc macros: `trybuild` compile-fail tests. For all: test each input shape.
-6. **Check hygiene** — `#[macro_export]` macros must use `$crate::` for all paths.
-
-## Decision Flowchart
-
-```
-Can a function or generic solve this?
-  YES → Don't use a macro.
-  NO  ↓
-
-Do you need to:
-  - Accept variadic arguments?
-  - Use file!()/line!()/column!()?
-  - Stamp identical impls across a type list?
-  - Generate code from a simple, uniform pattern?
-    YES → macro_rules! (declarative)
-    NO  ↓
-
-Do you need to:
-  - Inspect struct/enum fields by name and type?
-  - Parse custom attributes (#[my_attr(...)])?
-  - Generate new type definitions from existing ones?
-  - Handle complex per-field logic (skip, rename, validate)?
-    YES → Proc macro (derive, attribute, or function-like)
-    NO  ↓
-
-Do you need to:
-  - Concatenate identifiers (visit_ + variant_name)?
-  - Convert case (snake_case, CamelCase)?
-    → macro_rules! + `paste` crate
-    → OR proc macro if logic is already complex
-
-Still unsure?
-  - Pattern is uniform across variants/types → macro_rules!
-  - Pattern requires per-item decisions → proc macro
-```
-
-## Quick Decision Table
-
-| Situation | Tool | Why |
-| --- | --- | --- |
-| Same impl for a list of types | `macro_rules!` | Stamp-out pattern; no introspection needed |
-| `From<X>` for N error variants | `macro_rules!` | Uniform boilerplate |
-| `file!()`/`line!()` at call site | `macro_rules!` | Built-in macros must expand at call site |
-| Builder pattern with attributes | proc macro derive | Per-field attribute parsing |
-| Visitor over enum variants | proc macro derive | Needs field indexing and name generation |
-| Trait impls for primitives | `macro_rules!` | Type list stamp-out |
-| DSL with custom syntax | either | Depends on syntax complexity |
+1. Rule out functions and generics.
+2. Choose declarative or procedural before writing expansion code.
+3. Separate parsing from emission.
+4. Inspect the result with `cargo expand`.
+5. Test every accepted input shape; use `trybuild` compile-fail tests for proc macros.
+6. Use `$crate::` for all paths in `#[macro_export]` macros.
 
 ## Debugging
 
 ```bash
-cargo expand                  # expand all macros
-cargo expand module::name     # expand specific module
+cargo expand
+cargo expand module::name
 ```
 
-**Check `cargo expand` output before considering a macro done** — expansion bugs are invisible in the source and surface only in the generated code.
+On nightly, use `trace_macros!(true)` for `macro_rules!`. For proc macros, print the generated tokens while debugging and remove the output afterward.
 
-For `macro_rules!` on nightly: `trace_macros!(true)` before invocation. For proc macros: `eprintln!("GENERATED:\n{}", output)` in the impl function.
+## Common Errors
 
-## Common Mistakes
+- Use a proc macro for field inspection.
+- Respect follow-set restrictions: an `expr` fragment may only precede `=>`, `,`, or `;`.
+- Bind an expression before using it twice.
+- Return `syn::Error::new_spanned()` rather than panicking.
+- Use token trees when a later macro must parse the input again; typed fragments are opaque.
 
-1. **Choosing `macro_rules!` for field-introspection.** Use a proc macro.
-2. **Not planning phases.** Always design parse → emit.
-3. **Ignoring follow-set restrictions.** `$x:expr` can only be followed by `=>`, `,`, `;`.
-4. **Repeated side effects.** `$x:expr` used twice = expression evaluated twice. Bind to `let` first.
-5. **Missing `$crate::`** in exported macros.
-6. **Using `panic!` in proc macros.** Use `syn::Error::new_spanned()`.
-7. **Fragment opacity.** `$x:expr` passed to another macro becomes opaque. Use `$($x:tt)*` for re-parsing.
+## API
 
-## Escalation Ladder
-
-```
-Plain function  →  Can abstract over values
-    ↓ not enough
-Generics + traits  →  Can abstract over types
-    ↓ not enough
-macro_rules!  →  Can abstract over code fragments
-    ↓ not enough (need field introspection, indexing, attributes)
-Proc macro  →  Full Rust at compile time
-```
-
-Each step adds complexity. Start at the top; escalate only when needed.
-
-## API Design (Rust API Guidelines)
-
-- **C-EVOCATIVE**: Macro input should mirror the output syntax
-- **C-MACRO-ATTR**: Allow `#[cfg(...)]`, `#[derive(...)]` on generated items
-- **C-ANYWHERE**: Item macros must work at module scope AND inside functions
-- **C-MACRO-VIS**: Accept `$vis:vis` to let callers control visibility
+- Make input look like the intended output.
+- Support relevant item attributes and `$vis:vis`.
+- Make item macros work at module and function scope when their expansion permits it.

@@ -1,11 +1,3 @@
-# Perf Handoff
+# Performance Handoff
 
-Switch to `optimizing-rust-performance` when the missing guardrail is:
-
-- latency
-- allocation pressure
-- memory footprint
-- scaling behavior
-- repeated recomputation
-
-Keep one correctness regression if needed, but do not force benchmark logic into ordinary tests.
+Use `optimizing-rust-performance` when the missing guardrail measures time, allocation, memory, or scaling. Keep a correctness regression here when the performance bug also changed behavior.

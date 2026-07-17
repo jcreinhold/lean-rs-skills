@@ -6,116 +6,16 @@ tools: Read, Grep, Glob, Bash
 
 # Post-Design Verification Agent
 
-Dispatch this agent after completing design work on a module, crate, or API. It verifies that the change improved depth, didn't introduce complecting, and left callers simpler.
+Run `bash skills/deep-module-design/scripts/audit-module.sh <path>`, inspect the diff, and read two or three callers.
 
-## Task
+Check that the public surface did not grow without capability, no type mixes independent concerns, no wrapper only forwards calls, and callers need fewer facts or gain a clear capability. For Lean proofs, check statement level and comparison kind, use-first lemmas, and a top-level assembly proof.
 
-You are verifying a design change after implementation. Confirm the design got better, not just different.
+Run the relevant gate:
 
-## Steps
-
-1. **Run the audit script on the changed module.**
-
-    ```bash
-    bash skills/deep-module-design/scripts/audit-module.sh <path>
-    ```
-
-    Run this from the plugin root. In Claude Code, `${CLAUDE_PLUGIN_ROOT}/skills/...` is also valid when you are outside
-    the plugin root.
-
-2. **Compare before and after.** If the pre-design audit produced a constraint set, compare against it. Check:
-
-    - Did the depth estimate improve (higher LOC/pub ratio)?
-    - Did the public surface area shrink or hold steady?
-    - Were the identified complecting risks addressed?
-    - Were the constraints satisfied?
-
-3. **Check the diff for new complecting.** Read the changes and look for:
-
-    - New public types that handle multiple independent concerns
-    - New generic wrappers where specific types were available
-    - New parameters that every caller passes the same value for
-    - New methods named after what a specific caller does
-    - New temporal coupling (ordering enforced by convention)
-    - Information lost through the abstraction (callers must reconstruct something the module already knew)
-
-4. **Check that callers got simpler.** Read 2-3 callers of the changed API. Ask:
-
-    - Do callers have fewer concepts to learn?
-    - Can callers use the module without reading its source?
-    - Were any error paths defined out of existence?
-    - Did the change reduce change amplification (fewer places to edit for a single logical change)?
-
-    If the change is a body of Lean proofs, verify the mathematical alignment, not just that `lake build` is green
-    (closing the goal is not evidence of correctness). Read `references/lean-proof-decomposition.md` and check:
-
-    - The top-level proof reads as assembly of already-proved lemmas, not a heroic direct attack.
-    - Lemmas are stated use-first (natural hypotheses, useful conclusion), each removing one source of difficulty.
-    - The statement matches the intended mathematics: the level audit passes (substantive on the exact object, not a forgetful quotient/invariant) and the kind of comparison is correct (no equality claimed where only isomorphism holds).
-
-5. **Run the language-appropriate build and tests.**
-
-    For Rust changes:
-
-    ```bash
-    cargo nextest run -p <crate-name>
-    cargo clippy -p <crate-name>
-    ```
-
-    For Lean 4 changes (run in the Lean-side sibling repo):
-
-    ```bash
-    lake build
-    ```
-
-    During design iteration the `lean-lsp` MCP tools (`lean_build`, `lean_diagnostic_messages`, `lean_goal`) are the fast
-    inner loop; `lake build` is the final gate.
-
-6. **Produce the verification report.**
-
-```
-## Post-Design Verification: <module name>
-
-### Depth Change
-- Before: N pub items, M LOC/pub
-- After: N' pub items, M' LOC/pub
-- Direction: deeper / shallower / unchanged
-
-### Surface Area
-- Public items added: [list]
-- Public items removed: [list]
-- Net change: +/-N
-
-### Complecting Check
-- New complecting introduced: yes/no
-- Details: <if yes, what was braided together>
-
-### Caller Impact
-- Callers checked: [list 2-3 files]
-- Callers simplified: yes/no
-- Details: <how callers changed>
-
-### Constraint Compliance
-- <constraint 1>: met / not met
-- <constraint 2>: met / not met
-
-### Tests
-- For Rust: `cargo nextest`, `cargo clippy` — pass/fail.
-- For Lean 4: `lake build` in the Lean-side sibling repo — pass/fail.
-
-### Verdict: PASS / FAIL / PASS WITH NOTES
-<one-sentence summary>
+```bash
+cargo nextest run -p <crate-name>
+cargo clippy -p <crate-name>
+lake build
 ```
 
-## Failure criteria
-
-The verification fails if any of these are true:
-
-- The depth estimate got worse without justification
-- New complecting was introduced
-- Callers got more complex (more concepts to learn, more code, more error handling)
-- The change added public items without proportional new capability
-- Tests or clippy fail
-- For Lean proofs: the top-level proof is still a heroic direct attack, a lemma is stated for ease of proof rather than use, or the statement is misaligned with the intended mathematics (forgetful-object collapse or kind-of-comparison mismatch)
-
-A "PASS WITH NOTES" is appropriate when the design improved overall but left minor items for follow-up.
+Report the before/after audit, public items added or removed, caller impact, failed constraints, commands run, and a `PASS`, `FAIL`, or `PASS WITH NOTES` verdict.
