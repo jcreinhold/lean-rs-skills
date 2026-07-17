@@ -24,7 +24,7 @@ Use when:
 - you are choosing between two local representations
 - you need fast iteration before broader confirmation
 
-Place it in the nearest crate bench file or add a new bench beside related ones.
+Place it in the nearest crate bench file, or add one beside related benches.
 
 ### Scenario Benchmark
 
@@ -55,7 +55,7 @@ Good existing surfaces look like:
 
 ## Criterion Guidance
 
-Use Criterion's comparison features instead of ad hoc timing loops.
+Use Criterion's comparison features, not one-off timing loops.
 
 Useful commands:
 
@@ -68,7 +68,7 @@ cargo bench -p <crate> --bench <bench> -- --profile-time 10
 Design rules:
 
 - Benchmark the operation of interest, not just fixture construction.
-- Put expensive, invariant setup outside `b.iter` when the workload under test is steady-state behavior.
+- Put expensive, invariant setup outside `b.iter` when the workload under test is steady-state.
 - Keep setup inside `b.iter` only when setup cost is part of the real complaint.
 - Use parameterized families, not one magic size.
 - Use realistic term shapes, not only best-case atoms.

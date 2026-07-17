@@ -188,7 +188,7 @@ fn process(input: &str) -> Result<Output> {
 }
 ```
 
-The key insight: `validate` as a separate step was unnecessary if `parse` rejects invalid input. `is_empty()` was unnecessary if `transform` handles empty input as a normal case.
+The point: a separate `validate` step is unnecessary if `parse` rejects invalid input, and `is_empty()` is unnecessary if `transform` handles empty input as a normal case.
 
 ______________________________________________________________________
 
@@ -299,7 +299,7 @@ ______________________________________________________________________
 
 **Complected:** Using a generic wrapper that discards known information.
 
-This is a common complecting pattern in Rust codebases that distinguish multiple value families. When code knows it has a value type but wraps it in a generic `OpenTerm`, it braids the specific type information with a generic container — and every downstream consumer must re-discover what the code already knew.
+A common pattern in Rust codebases that distinguish multiple value families. When code knows it has a value type but wraps it in a generic `OpenTerm`, it braids the specific type with a generic container — and every downstream consumer must re-discover what the code already knew.
 
 ```rust
 // Complected: known value type wrapped in generic

@@ -46,9 +46,9 @@ The build is as fast as its longest serial chain (critical path). To shorten the
 
 ## Import Discipline
 
-Each import pulls in the full transitive closure of dependencies. This means:
+Each import pulls in the full transitive closure of dependencies:
 
-- All typeclass instances from all transitively imported modules enter the synthesis database.
+- All typeclass instances enter the synthesis database.
 - All `@[simp]` lemmas enter the discrimination tree.
 - All notation and syntax extensions are active.
 
@@ -85,7 +85,7 @@ Compiled outputs per module:
 ### Avoiding unnecessary rebuilds
 
 - **Do not edit leaf modules casually.** A change to a widely-imported module forces rebuilding everything that imports it.
-- **Use `lake build --old`** during development to skip recompilation of unedited files, assuming oleans are valid. This is useful when you know the oleans are fine and want to iterate on a single file.
+- **Use `lake build --old`** during development to skip recompiling unedited files when you know the oleans are valid and want to iterate on one file.
 - **Keep `lakefile.lean` stable.** Changes to the lakefile can invalidate the entire build cache.
 
 ## Mathlib Caching
@@ -109,7 +109,7 @@ lake build
 
 ## Lean Reservoir
 
-Lean's package registry at `reservoir.lean-lang.org` hosts precompiled artifacts for published packages. Lake can download build outputs for dependencies from Reservoir automatically, reducing build times for projects with many dependencies.
+Lean's package registry at `reservoir.lean-lang.org` hosts precompiled artifacts for published packages. Lake downloads dependency build outputs from Reservoir automatically, cutting build times for projects with many dependencies.
 
 ## Module Organization Patterns
 
@@ -193,8 +193,8 @@ time lake build
 # Time a single module
 time lake env lean MyProject/SlowModule.lean
 
-# Show Lake's dependency graph (useful for finding the critical path)
-lake print-paths MyProject.SlowModule
+# Show the import graph (useful for finding the critical path)
+lake exe graph
 ```
 
 For per-command profiling within a file, use `set_option profiler true` (see `profiling-and-diagnostics.md`).

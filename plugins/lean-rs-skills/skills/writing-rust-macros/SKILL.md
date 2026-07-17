@@ -7,9 +7,9 @@ description: Use for Rust macros — declarative (macro_rules!) and procedural (
 
 Rust macros eliminate repetitive code that functions and generics cannot abstract.
 
-**Core principle:** Plan the macro architecture before writing a single rule. Decide declarative vs procedural _first_ — switching mid-implementation wastes significant effort.
+**Core principle:** Plan the architecture before writing a single rule. Decide declarative vs procedural _first_ — switching midway wastes effort.
 
-See `references/macro-patterns.md` in this skill directory for the complete pattern reference (fragment specifiers, named patterns, proc macro structure).
+See `references/macro-patterns.md` for the full pattern reference (fragment specifiers, named patterns, proc macro structure).
 
 ## Workflow
 
@@ -73,7 +73,7 @@ cargo expand                  # expand all macros
 cargo expand module::name     # expand specific module
 ```
 
-**Check `cargo expand` output before considering a macro done** — expansion bugs are invisible in the source and only surface in the generated code.
+**Check `cargo expand` output before considering a macro done** — expansion bugs are invisible in the source and surface only in the generated code.
 
 For `macro_rules!` on nightly: `trace_macros!(true)` before invocation. For proc macros: `eprintln!("GENERATED:\n{}", output)` in the impl function.
 

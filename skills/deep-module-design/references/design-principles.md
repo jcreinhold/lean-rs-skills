@@ -56,7 +56,7 @@ Two related primary-text claims:
 - §4.4: "the cost of a module (in terms of system complexity) is its interface."
 - Summary principle 6: "It's more important for a module to have a simple interface than a simple implementation."
 
-A class with a complex interface is a burden even if its implementation is small, because every caller pays for it; a class with a simple interface is valuable even if its implementation is large, because the implementation is written once. This is the asymmetry that justifies pulling complexity downward and that explains why removing a public item is almost never neutral — interface removed is cost paid back to every caller, every future change.
+A complex interface is a burden even if the implementation is small, because every caller pays for it; a simple interface is valuable even if the implementation is large, because the implementation is written once. This asymmetry justifies pulling complexity downward, and explains why removing a public item is almost never neutral: interface removed is cost paid back to every caller, every future change.
 
 ### Classitis
 
@@ -92,9 +92,9 @@ ______________________________________________________________________
 
 **Source:** Ousterhout, ch 16
 
-The strategic-vs-tactical distinction (above) compounds across every change you make to existing code. The standing rule (Ousterhout, p. 101): _"if you're not making the design better, you are probably making it worse."_ Every touch is an opportunity for incremental design improvement: a clearer name, a tighter boundary, a parameter pulled inside, an error variant defined out of existence. The opportunity is not free — refactoring takes time — but the cost of accumulated tactical decisions is higher.
+The strategic-vs-tactical distinction compounds across every change to existing code. The standing rule (Ousterhout, p. 101): _"if you're not making the design better, you are probably making it worse."_ Every touch is a chance for an incremental improvement: a clearer name, a tighter boundary, a parameter pulled inside, an error variant defined out of existence. This is not free — refactoring takes time — but the cost of accumulated tactical decisions is higher.
 
-The rule for an LLM agent: when touching a file to fix or extend something, finish the task first, then _before submitting_ spend a small budget improving the design of what you touched. Not a rewrite — a targeted improvement at the boundary you touched. If the diff for the design improvement would be larger than the diff for the original change, stop and propose the refactor as a separate change.
+The rule for an LLM agent: when you touch a file to fix or extend something, finish the task first, then _before submitting_ spend a small budget improving the design of what you touched. Not a rewrite — a targeted improvement at that boundary. If the design-improvement diff would be larger than the original change, stop and propose the refactor separately.
 
 ______________________________________________________________________
 

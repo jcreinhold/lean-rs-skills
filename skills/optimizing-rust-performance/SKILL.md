@@ -40,7 +40,7 @@ Use this skill for measurement-driven Rust performance work. The default job is 
 - Prefer fixing phase-local allocation, clone pressure, and redundant recomputation before micro-tuning instruction count.
 - Treat normalization/evaluation, typechecker/unifier paths, traversal code, registry/metadata lookup, and pipeline pass boundaries as first-class performance surfaces in compiler-style workloads.
 - Arena lifetime design matters. Distinguish phase-local data from data that must survive across caches or pass boundaries.
-- Many existing benches are microbenches. Use them to localize, then confirm with a broader pipeline or end-to-end workload when the change can affect end-to-end throughput.
+- Many existing benches are microbenches. Use them to localize, then confirm with a broader pipeline or end-to-end workload when the change can affect overall throughput.
 
 ## Review Mode
 

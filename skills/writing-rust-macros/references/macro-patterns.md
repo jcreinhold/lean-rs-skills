@@ -110,7 +110,7 @@ macro_rules! count {
 }
 ```
 
-**Warning:** O(n²) in token count. Keep recursion depth < 20.
+**Warning:** cost is O(n²) in token count, so long inputs slow compilation. Each token also recurses once, against Rust's default `recursion_limit` of 128; raise it with `#![recursion_limit = "…"]` if you hit the ceiling.
 
 ### 4. Push-Down Accumulation
 

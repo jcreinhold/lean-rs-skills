@@ -19,7 +19,7 @@ Help the reader understand. Everything else serves that.
 
 - Formal proof writing, theorem-proof blocks, or proof decomposition
 - Adversarial review of a finished proof
-- Setting or revising the mathematical center of a piece of work, rather than the prose that surrounds it
+- Setting or revising the mathematical center of the work, not the prose around it
 
 ## What to read first
 
@@ -47,6 +47,6 @@ When asked to review without editing, report each problem in place — location,
 
 ## Subagents
 
-For minimal prose-only edits, a local worker is available:
+For minimal prose-only edits, use the local worker:
 
 - [`agents/edit.md`](./agents/edit.md) — reads the references, identifies prose problems, rewrites for clarity and precision.

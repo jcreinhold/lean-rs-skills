@@ -1,6 +1,6 @@
 # Repo Measurement Surfaces
 
-Your workspace likely already has useful measurement support. Use it before inventing new infrastructure.
+Your workspace probably already has measurement support. Use it before building new infrastructure.
 
 ## Look For Existing Criterion Benches
 
@@ -10,12 +10,15 @@ The conventions are stable across Rust workspaces. Look for:
 - A `[[bench]]` table in each crate's `Cargo.toml`.
 - Names that hint at scope: `*_bench.rs`, `unification_bench.rs`, `pipeline_bench.rs`, `regression_bench.rs`, `dhat_profile.rs`.
 
-The fastest way to enumerate benches is:
+The most reliable way to enumerate benches is to list the files:
 
 ```bash
 rg --files crates | rg '/benches/'
-cargo bench --workspace --list 2>/dev/null
 ```
+
+`cargo bench --workspace --list` also works under a libtest harness, but Criterion benches may print nothing, so trust the file listing.
+
+The bench and binary names below (`pipeline_bench`, `profile_frontend`, and the rest) are illustrative — they show common shapes, not ecosystem standards. Match against your own workspace.
 
 When narrowing to one bench, prefer the smallest crate that exercises the suspected hot path. End-to-end pipeline benches are useful for confirmation, not for fast iteration.
 

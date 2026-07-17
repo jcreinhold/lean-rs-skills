@@ -1,6 +1,6 @@
 # Rust Hotspot Classes
 
-These are the bottleneck classes that repeatedly matter in compiler-style Rust codebases. Each section names the class, lists the patterns to grep for, and calls out the typical failures inside that class.
+These bottleneck classes recur in compiler-style Rust codebases. Each section names the class, lists the patterns to grep for, and calls out its typical failures.
 
 ## Table of Contents
 

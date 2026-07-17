@@ -63,7 +63,7 @@ cumulative profiling times:
     type checking         18.1s
 ```
 
-Read that carefully. The tactics cost 357ms. Typeclass inference costs 74ms. **The kernel costs 18.1 seconds.** Any time spent squeezing `simp` in that file would have bought back a fraction of one percent.
+Read that carefully. The tactics cost 357ms. Typeclass inference costs 74ms. **The kernel costs 18.1 seconds.** Squeezing `simp` there would buy back a fraction of one percent.
 
 Each phase points somewhere different:
 

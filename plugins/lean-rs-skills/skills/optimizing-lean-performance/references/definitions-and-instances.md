@@ -89,7 +89,7 @@ abbrev widget (k : Fin (n + 1)) (hk : 0 < k.1) := (widgetData k hk).1   -- trap
 
 That `abbrev` inlines `(widgetData k hk).1` — and thus all of `widgetData`'s body — into every type Lean compares. The diagnostics counter `reduction: unfolded reducible declarations` is exactly this happening. Make it a `def`.
 
-The same reasoning applies to `@[reducible] def`. Mathlib has 3,614 `abbrev`s and only 68 `@[reducible]`s; when it wants reducibility it says `abbrev`, and it reserves both for genuinely small bodies.
+The same reasoning applies to `@[reducible] def`. Mathlib uses far more `abbrev`s than `@[reducible]`s; when it wants reducibility it says `abbrev`, and it reserves both for genuinely small bodies.
 
 ## The Module System Is a Performance Lever
 
@@ -101,7 +101,7 @@ Under Lean's module system (4.21+), a definition's *body* has its own visibility
 
 `@[expose]` is a performance decision, not a convenience. It grants every downstream file permission to unfold the body — and typeclass search, `simp`, and `isDefEq` will take that permission whether or not you wanted them to.
 
-Expose a body when downstream code genuinely computes with it. Otherwise, seal it and export the equation lemmas. The `linter.redundantExpose` option flags `@[expose]` and `@[no_expose]` annotations that change nothing.
+Expose a body when downstream code genuinely computes with it. Otherwise, seal it and export the equation lemmas. The `warn.redundantExpose` option flags `@[expose]` and `@[no_expose]` annotations that change nothing.
 
 Because unexposed bodies stop at the module boundary, sealing also shrinks what a downstream edit can invalidate.
 
@@ -132,21 +132,21 @@ The signal to watch is the diagnostics section `type_class: used instances`. A h
 
 Typeclass search is fast when instance terms are *canonical* — when the projection out of a big instance is literally the small instance Lean already has, rather than something that must be unfolded to match.
 
-- **`inferInstanceAs`** finds an instance for a definitionally equal type without re-searching. Mathlib uses it 2,045 times.
+- **`inferInstanceAs`** finds an instance for a definitionally equal type without re-searching. Mathlib leans on it heavily.
 
     ```lean
     instance : Monoid MyType := inferInstanceAs (Monoid Underlying)
     ```
 
-- **`fast_instance%`** (Mathlib) rebuilds an instance as nested constructor applications that point at the instances you already have. Mathlib uses it 567 times. Its own rationale: define `instRing` with `fast_instance%` and `instRing.toSemiring` "unifies almost immediately with `instSemiring`, rather than having to break it down into smaller pieces."
+- **`fast_instance%`** (Mathlib) rebuilds an instance as nested constructor applications that point at the instances you already have. Its own rationale: define `instRing` with `fast_instance%` and `instRing.toSemiring` "unifies almost immediately with `instSemiring`, rather than having to break it down into smaller pieces."
 
     ```lean
     instance instRing : Ring X := fast_instance% Function.Injective.ring ..
     ```
 
-- **Shortcut instances** name a common composite directly so search does not walk the hierarchy to rebuild it. Mathlib marks 46 of them, with comments like `-- shortcut instance for performance reasons`.
+- **Shortcut instances** name a common composite directly so search does not walk the hierarchy to rebuild it. Mathlib marks many, with comments like `-- shortcut instance for performance reasons`.
 
-- **Priorities.** Give broad derived instances low priority so they are tried last. Mathlib writes `instance (priority := 100)` 1,039 times.
+- **Priorities.** Give broad derived instances low priority so they are tried last, as in `instance (priority := 100)`.
 
     ```lean
     instance (priority := 100) : SomeBroadClass A := ...
@@ -154,7 +154,7 @@ Typeclass search is fast when instance terms are *canonical* — when the projec
 
 ## Withholding Instances
 
-A true fact is not automatically a good instance. Mathlib says "not an instance for performance reasons" 46 times. Withhold it when the fact is broad, expensive to derive, or creates a second path to a structure that already has one:
+A true fact is not automatically a good instance. Mathlib often marks one "not an instance for performance reasons". Withhold it when the fact is broad, expensive to derive, or creates a second path to a structure that already has one:
 
 ```lean
 -- Named theorem, installed locally only where it is needed.
@@ -204,7 +204,7 @@ haveI : (widget k hk).IsInner := by
   infer_instance
 ```
 
-Repeat that at six sites and you pay for the derivation six times. Note what that costs and what it does not. In a real file where this pattern appeared six times, the six sites together accounted for well under a second — the elaborator is faster at this than you would guess. What they cost is legibility and churn: the definition has no usable interface, so every proof invents one, and every change to the definition breaks all six.
+Repeat that at six sites and you pay for the derivation six times. Note what that costs and what it does not. In a real file with this pattern, the six sites together accounted for well under a second — the elaborator is faster at this than you would guess. What they cost is legibility and churn: the definition has no usable interface, so every proof invents one, and every change to the definition breaks all six.
 
 Fix it because it is the right shape, and measure before you claim a speedup. If the profiler blames `typeclass inference` or `elaboration`, this will help. If it blames `type checking`, the kernel is grinding on your proof terms and you want `term-size-and-transparency.md` instead.
 
@@ -226,7 +226,7 @@ instance widget_isInner (hkn : k.1 < n) : (widget k hk).IsInner := by
 
 The six-line preamble disappears from every proof: the instance is found by search, and any proof that needs the body rewrites with `widget_of_lt`. The derivation runs once, here.
 
-Note what did *not* change: no tactic got faster, no heartbeat limit moved, no import was dropped. The work was simply stopped from happening more than once.
+Note what did *not* change: no tactic got faster, no heartbeat limit moved, no import was dropped. The work simply stopped happening more than once.
 
 ## Related
 

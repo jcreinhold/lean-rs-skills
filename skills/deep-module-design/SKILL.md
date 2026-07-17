@@ -7,7 +7,7 @@ description: 'Use for designing Rust/Lean modules, crates, namespaces, or APIs: 
 
 A module's value is the ratio of what it does for callers to what callers must learn. A deep module hides significant complexity behind a simple interface. A shallow module exposes nearly as much complexity as it contains — it moves the problem without solving it.
 
-This skill helps you design modules that are deep and simple (not complected), rather than shallow and merely easy (familiar but tangled). The principles are language-neutral. Concrete patterns live in two language adapters:
+This skill helps you design deep, simple (not complected) modules rather than shallow, merely easy (familiar but tangled) ones. The principles are language-neutral. Concrete patterns live in two language adapters:
 
 - `references/rust-patterns.md` — Rust idioms.
 - `references/lean4-patterns.md` — Lean 4 idioms (mirrors the Rust file slot-for-slot).
@@ -15,7 +15,7 @@ This skill helps you design modules that are deep and simple (not complected), r
 
 ## Defaults to Resist
 
-You are an LLM agent. The principles below are the design discipline. _This_ section is about the failure modes you exhibit by default, because of how you were trained, that the principles alone won't fix. Read this section _before_ the principles, and check yourself against it before submitting code.
+You are an LLM agent. The principles below are the design discipline. _This_ section names the failure modes you exhibit by default, from training, that the principles alone won't fix. Read it _before_ the principles, and check yourself against it before submitting code.
 
 - **Reflexive abstraction.** Asked to add a function, you make it `pub`, generic, and trait-bounded "for flexibility." The user asked for one caller; you shipped an extension point. _Counter:_ keep things `private` and concrete until a real second caller exists.
 - **Pass-through generation.** Asked for a "facade" or "wrapper," you produce 1:1 method forwarding because that matches the shape of "facade" in your training data. _Counter:_ a wrapper that doesn't hide complexity isn't a wrapper, it's noise. See §7 below.
@@ -25,7 +25,7 @@ You are an LLM agent. The principles below are the design discipline. _This_ sec
 - **Pattern-matching to canonical idioms.** "This looks like it should be a typeclass / trait / monad / builder." _Counter:_ the abstraction must be earned by use cases, not picked by frequency in your prior. One implementor ⇒ no trait. One ordering ⇒ no builder.
 - **Comment inflation.** You write multi-line docstrings restating what the type signature already says. _Counter:_ doc comments describe _why_ (constraints, invariants, surprising behavior), not _what_.
 - **Stop-when-it-compiles.** Your signal is "type checker green, tests pass." That is Ousterhout's _tactical_ default and it is sharper for you than for a human. _Counter:_ the design isn't done when the diff works. Run the audit script. Re-read the callers. Check the depth ratio.
-- **Skipping the second design.** Once the first attempt compiles you commit. _Counter:_ Ousterhout's "design it twice" (ch 11) is the rule for hard problems — and the failure mode he names is the _smart-people trap_: people who got good grades on easy problems with their first idea develop the habit of trusting the first idea, even on problems where it isn't good enough. Your training signal — closing the goal, type-checker green — is exactly that bias amplified. The remedy is _substantively different_ alternatives, not a refactor of the first attempt: different abstraction boundary, different invariants, different decomposition. Then compare. The comparison is the value, not just the better design — Ousterhout: _"the process of devising and comparing multiple approaches will teach you about the factors that make designs better or worse."_ See "New module" below for the concrete instruction.
+- **Skipping the second design.** Once the first attempt compiles you commit. _Counter:_ Ousterhout's "design it twice" (ch 11) is the rule for hard problems. The failure mode he names is the _smart-people trap_: those who aced easy problems on their first idea learn to trust the first idea, even when it isn't good enough. Your training signal — closing the goal, type-checker green — amplifies that bias. The remedy is _substantively different_ alternatives, not a refactor of the first attempt: different abstraction boundary, different invariants, different decomposition. Then compare. The comparison is the value, not just the better design — Ousterhout: _"the process of devising and comparing multiple approaches will teach you about the factors that make designs better or worse."_ See "New module" below.
 - **Volatile-decisions amnesia.** You guess what might change because that's what humans do. You don't have decades of intuition. _Counter:_ run `git log --oneline -- <path>` and read the recent diffs. Decide boundaries by what _has_ changed, not what might.
 
 ## Orient First
@@ -134,7 +134,7 @@ The canonical anti-example (Ousterhout, ch 7) is Java's `FileInputStream` / `Inp
 
 Decompose by information sharing, not by surface similarity.
 
-The skill so far has emphasised separation. The opposite pressure is also real and you underweight it: two pieces of code should be _combined_ when they share information, when combining simplifies the interface, or when they would otherwise duplicate logic. Ousterhout's example (ch 9): the cursor and the selection in a text editor look like they belong together — both manage text positions — but their concerns change independently, so separation is cleaner. The reverse case: parsing and lexing share representation and sequencing constraints; splitting them often produces a fragile interface that has to leak both sides.
+The skill so far has emphasised separation. The opposite pressure is real and you underweight it: combine two pieces of code when they share information, when combining simplifies the interface, or when they would otherwise duplicate logic. Ousterhout's example (ch 9): the cursor and the selection in a text editor look like they belong together — both manage text positions — but their concerns change independently, so separation is cleaner. The reverse case: parsing and lexing share representation and sequencing constraints; splitting them often produces a fragile interface that has to leak both sides.
 
 **Combine when:**
 
@@ -182,7 +182,7 @@ The alternatives must be _different_, not refinements: different abstraction bou
 
 The comparison is the point, not just the better design. Ousterhout: _"the process of devising and comparing multiple approaches will teach you about the factors that make designs better or worse."_ For an agent in one task, that means writing the comparison out — depth, complecting, change-amplification, caller cost — so the tradeoffs surface and inform the next decisions.
 
-The trap to expect is the smart-people trap (Ousterhout's term): people who got good grades on easy problems with their first idea develop the habit of trusting the first idea. Closing the goal feels like that signal. Treat it as evidence the design works, not as evidence it is good.
+The trap to expect is the smart-people trap (Ousterhout's term): those who aced easy problems on their first idea learn to trust the first idea. Closing the goal feels like that signal. Treat it as evidence the design works, not that it is good.
 
 ### Refactoring an existing API
 

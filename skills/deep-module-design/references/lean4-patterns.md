@@ -231,14 +231,14 @@ def Builder.validate (b : Builder) : Except String Builder :=
   pure { b with validated := true }
 ```
 
-**Decomplected:** Index the type by its phase. Lean's dependent types make this the natural choice.
+**Decomplected:** Parameterize the type by its phase. Lean's dependent types make this the natural choice.
 
 ```lean
 inductive BuilderPhase where
   | unconfigured | configured | validated
 
-structure Builder : BuilderPhase → Type where
-  -- fields parameterized over phase
+structure Builder (p : BuilderPhase) where
+  -- fields (contents may depend on p)
 
 def Builder.configure : Builder .unconfigured → Config → Builder .configured := ...
 def Builder.validate  : Builder .configured   → Except String (Builder .validated) := ...

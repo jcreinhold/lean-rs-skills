@@ -14,7 +14,7 @@ Full snapshots of volatile diagnostics, formatting, or internal IR make harmless
 
 ## Helpers that hide the test
 
-If a helper turns three lines of setup into one line of mystery, it is too much. Helpers should remove repetition, not obscure the invariant.
+If a helper hides what the test checks behind an opaque call, it does too much. Helpers should remove repetition, not obscure the invariant.
 
 ## Duplicate coverage at multiple layers
 
@@ -22,4 +22,4 @@ If a local invariant is tested in unit, integration, and end-to-end form with no
 
 ## Performance disguised as correctness
 
-Loops, giant random cases, or timing assumptions inside `#[test]` usually mean the wrong surface was chosen. Move that concern into a bench or profile.
+Loops, giant random cases, or timing assumptions inside `#[test]` usually mean you chose the wrong surface. Move that concern into a bench or profile.

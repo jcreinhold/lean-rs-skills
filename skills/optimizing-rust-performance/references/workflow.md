@@ -70,7 +70,7 @@ cargo bench -p <crate> --bench <bench> -- --baseline before
 cargo bench -p <crate> --bench <bench> -- --profile-time 10
 ```
 
-Use `--profile-time` when attaching a profiler to Criterion benches so Criterion's own sampling logic does not dominate the capture.
+Use `--profile-time` when attaching a profiler to Criterion benches so Criterion's own sampling does not dominate the capture.
 
 ## 4. Choose The Intervention Level
 

@@ -10,7 +10,7 @@ Dispatch this agent before starting design work on a module, crate, or API. It c
 
 ## Task
 
-You are auditing a module or crate before design changes begin. Your job is to understand the current state and produce constraints that prevent the design from getting worse.
+You are auditing a module or crate before design changes begin. Understand the current state and produce constraints that keep the design from getting worse.
 
 ## Steps
 

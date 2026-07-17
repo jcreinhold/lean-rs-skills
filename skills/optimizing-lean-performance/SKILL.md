@@ -7,7 +7,7 @@ description: 'Use for Lean 4 performance: slow elaboration, heartbeat timeouts, 
 
 Find and fix slow Lean 4 elaboration, proofs, and builds.
 
-Your guess about why a Lean file is slow will usually be wrong, and it will be wrong in a specific way: you will blame a tactic you can see, when the cost sits in a phase you cannot. Measure first. Every time.
+Your guess about why a Lean file is slow will usually be wrong, and in a specific way: you will blame a tactic you can see, when the cost sits in a phase you cannot. Measure first. Every time.
 
 ## Orient First
 
@@ -112,7 +112,7 @@ Ordered. When two conflict, the higher one wins.
 Reaching for these feels like progress. It is not.
 
 - **Blaming the scariest-looking tactic.** The `simp_all` you can see is rarely the `simp_all` that costs. Read the cumulative table, then bisect the file — truncate it after each declaration and time the prefixes. One theorem usually owns almost all of the time, and it is often not the one you expected.
-- **Bumping the heartbeats.** Mathlib has zero real `maxHeartbeats` bumps across 8,245 files, and two linters that reject them. A timeout is a diagnosis, not an obstacle.
+- **Bumping the heartbeats.** Mathlib has no real `maxHeartbeats` bumps in its proof files, and two linters that reject them. A timeout is a diagnosis, not an obstacle.
 - **`native_decide` to make it go away.** It trusts the whole compiler, not the kernel. Mathlib bans it outright: with it, "it is probably possible to prove `False`."
 - **Reaching for `simp` where `rw` would do.** `simp` searches thousands of lemmas to apply the one you already knew.
 - **Adding a global `instance` for a fact used once.** A true fact is not automatically a good instance. It joins every future search, including the ones where it fails deep and backtracks.

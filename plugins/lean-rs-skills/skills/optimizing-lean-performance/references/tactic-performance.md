@@ -84,7 +84,7 @@ theorem my_theorem : ... := by simp
 @[simp high] theorem canonical_form : ... := ...
 ```
 
-Mathlib uses `attribute [-simp] … in` 23 times and `@[simp high]` 93 times. Both are ordinary tools, not hacks.
+Mathlib uses both `attribute [-simp] … in` and `@[simp high]`. They are ordinary tools, not hacks.
 
 ## `convert` on Dependent Types
 
@@ -140,7 +140,7 @@ Mutual inductives create traps ordinary inductives do not.
 
 - `nontriviality` — a convenience wrapper. Use `rcases subsingleton_or_nontrivial α` instead.
 - `field_simp` — expensive on complex fractions. Consider directed `rw`s.
-- `fun_prop` and other Aesop-based tactics — replacing them with the explicit lemma is almost always possible and cuts time appreciably. Discharging the goal with `assumption` or `rfl` *before* invoking Aesop also helps.
+- `fun_prop` and other Aesop-based tactics — the explicit lemma almost always replaces them and cuts time appreciably. Discharging the goal with `assumption` or `rfl` *before* invoking Aesop also helps.
 - `aesop` — squeeze it with `aesop?` and commit the script.
 
 ## Exponential Blowup

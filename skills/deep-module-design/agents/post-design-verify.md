@@ -10,7 +10,7 @@ Dispatch this agent after completing design work on a module, crate, or API. It 
 
 ## Task
 
-You are verifying a design change after implementation. Your job is to confirm the design got better, not just different.
+You are verifying a design change after implementation. Confirm the design got better, not just different.
 
 ## Steps
 

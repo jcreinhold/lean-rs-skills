@@ -4,7 +4,7 @@ Read this when the module you are designing is a body of Lean proofs — theorem
 
 The governing rule: **when the two frames conflict, the mathematics wins.** A definition a mathematician recognizes instantly beats a "deeper" but unrecognizable encoding; a lemma stated the way it is used beats a lemma stated for the convenience of its proof.
 
-The material is genericized mathematical craft (Tao, Lamport, Leron, Halmos, Leinster/Riehl). The Lean and category-theory examples are illustrations — mathlib is heavily categorical — not the only setting the guidance applies to.
+The material is general mathematical craft (Tao, Lamport, Leron, Halmos, Leinster/Riehl). The Lean and category-theory examples are illustrations — mathlib is heavily categorical — not the only setting the guidance applies to.
 
 ## Table of Contents
 
@@ -72,7 +72,7 @@ ______________________________________________________________________
 Tao's rule: *state a lemma in the form that is easiest to use, not easiest to prove.* Concretely:
 
 - **Natural hypotheses, manifestly useful conclusion, minimal notation.** Push disposable notation, local calculations, and purely internal bridge claims down into the proof.
-- **Generality is dictated by callers, not by the proof.** State the lemma at the type that is actually used; generalize to `α : Type*` with a stack of typeclass constraints only when a *real* second caller arrives. The lemma's callers decide its generality — not what happens to be convenient for the current proof. This is the proof form of core principle §6 ("interface reflects multiple uses; functionality reflects current needs") and the antidote to reflexive `Type*` polymorphism.
+- **Generality is dictated by callers, not by the proof.** State the lemma at the type actually used; generalize to `α : Type*` with a stack of typeclass constraints only when a *real* second caller arrives — callers decide generality, not the convenience of the current proof. This is the proof form of core principle §6 ("interface reflects multiple uses; functionality reflects current needs") and the antidote to reflexive `Type*` polymorphism.
 - **Names are part of the interface.** `aux1`, `helper2`, `step` are naming amnesia — a caller has to read the body to know what the lemma gives them. Pay for a name that states the fact.
 
 The point is not to maximize lemma count. It is to make the main theorem approachable and turn the final proof into an assembly of already-understood moves.

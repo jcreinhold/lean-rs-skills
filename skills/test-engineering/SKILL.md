@@ -5,9 +5,9 @@ description: 'Use for Rust tests: regressions, property tests, integration, comp
 
 # Test Engineering
 
-Good tests increase confidence faster than they increase change cost. The goal is not to increase counts. The goal is to stop real bugs from escaping with the smallest, sharpest set of checks.
+Good tests raise confidence faster than they raise the cost of change. The goal is not more tests. It is to stop real bugs from escaping with the smallest, sharpest set of checks.
 
-Use this skill to decide what to test, where to test it, and what kind of test surface fits the risk. For performance-sensitive work, route to `optimizing-rust-performance` instead of forcing timing logic into correctness tests.
+Use this skill to decide what to test, where, and with what kind of test surface. For performance-sensitive work, route to `optimizing-rust-performance` instead of forcing timing logic into correctness tests.
 
 ## Orient First
 
@@ -38,7 +38,7 @@ These are ordered. If two conflict, the earlier one wins.
 
 ### 1. Test contracts and invariants, not implementation steps
 
-A test should answer "what must stay true?" not "what sequence of calls happens today?" If the assertion is about control flow, local variable names, or exact intermediate representation without that being the contract, the test is too close to the implementation.
+A test should answer "what must stay true?" not "what sequence of calls happens today?" If the assertion checks control flow, variable names, or exact intermediate representation that is not itself the contract, the test sits too close to the implementation.
 
 ### 2. Test at the highest layer that still isolates the risk
 
@@ -60,7 +60,7 @@ A suite with only positive cases often misses the most dangerous failures. If th
 
 ### 6. Keep suites fast enough to run routinely
 
-Slow tests create social pressure to skip them. Use the lightest test surface that catches the bug. Keep property-test sizes and case counts justified. If the real risk is latency, allocation, or asymptotic growth, stop and hand off to `optimizing-rust-performance`.
+Slow tests get skipped. Use the lightest test surface that catches the bug. Keep property-test sizes and case counts justified. If the real risk is latency, allocation, or asymptotic growth, stop and hand off to `optimizing-rust-performance`.
 
 ### 7. Localize helpers and generators
 
@@ -68,7 +68,7 @@ Helpers should remove noise, not hide the assertion. Keep generators, fixtures, 
 
 ## Naming Convention
 
-Use contract-first names. Test names should tell the reader what obligation is protected, not what framework happens to execute the check.
+Use contract-first names. A test name should tell the reader which obligation it protects, not which framework runs the check.
 
 Treat this as the repo default unless a crate already has a stronger local rule.
 
@@ -105,7 +105,7 @@ Ask these questions in order. Stop at the first "no" and fix that problem.
 4. **Is the current test at the right layer?** Move up or down if the present surface is too brittle or too indirect.
 5. **Is this better as a property than an example?** If many examples only restate the same law, replace them with one good property test.
 6. **Is the suite over-coupled to representation?** If a harmless refactor would break the test, the assertion is probably too shallow.
-7. **Is there a missing regression for known bug history?** Fixes without a minimal repro are invitations to regress.
+7. **Is there a missing regression for known bug history?** A fix without a minimal repro invites the bug back.
 8. **Would a bench be the right guardrail instead?** If the concern is time, allocation, or scaling, switch to `optimizing-rust-performance`.
 
 ## Working Rules By Context

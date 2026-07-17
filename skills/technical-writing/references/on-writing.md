@@ -73,7 +73,7 @@ Code shows what. A comment that says `# increment counter` next to `count += 1` 
 
 ## Put the common case first
 
-Most readers want basic usage. Lead with it: quick start, then common patterns, then advanced cases, then the full reference. Reverse this order and the eighty-percent reader wades through edge cases that don't apply to them.
+Most readers want basic usage. Lead with it: quick start, then common patterns, then advanced cases, then the full reference. Reverse this order and the eighty-percent reader wades through edge cases that don't apply.
 
 ## Be consistent
 

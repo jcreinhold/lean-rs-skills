@@ -1,6 +1,6 @@
 # Distilled External Lessons
 
-These are not cargo-cult recipes. They are decision rules distilled from Rust performance references and strong Rust codebases.
+Not recipes to copy blindly. These are decision rules drawn from Rust performance references and strong Rust codebases.
 
 ## Table of Contents
 
@@ -38,7 +38,7 @@ Applying this:
 Applying this:
 
 - store baselines around perf-sensitive changes
-- prefer repeatable Criterion workflows over ad hoc `Instant` timing
+- prefer repeatable Criterion workflows over one-off `Instant` timing
 
 ## From DHAT
 
