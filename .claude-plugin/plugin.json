@@ -1,6 +1,6 @@
 {
   "name": "lean-rs-skills",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Generic Rust + Lean 4 craft skills: module design, Lean proof decomposition, performance, testing, and macros.",
   "author": {
     "name": "Jacob Reinhold",
