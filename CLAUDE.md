@@ -44,8 +44,8 @@ Every skill lives under `skills/<name>/` and follows the same layout:
 - `SKILL.md` — required. YAML frontmatter (`name`, `description`) + the lean, always-loaded body. The `description` is what triggers the skill, so it must enumerate the concrete situations the skill covers (see existing ones for the pattern: a short purpose clause followed by a comma-separated list of trigger phrases).
 - `references/*.md` — depth loaded on demand. The `SKILL.md` body stays short and links into these for full theory or language-specific patterns. Keep the cognitive load on the body low; push detail down here.
 - `agents/openai.yaml` — every skill has one. Declares `interface.display_name`, `short_description`, and a `default_prompt` that references the skill as `$skill-name`.
-- `agents/*.md` — optional dispatchable sub-agents (currently `deep-module-design` only). The `SKILL.md` invokes them by relative path.
-- `scripts/*.sh` — optional audit/helper scripts (only `deep-module-design` and `test-engineering` have these).
+- `agents/*.md` — optional dispatchable sub-agents (currently `module-design` only). The `SKILL.md` invokes them by relative path.
+- `scripts/*.sh` — optional audit/helper scripts (only `module-design`, `lean-performance`, and `rust-testing` have these).
 - `evals/evals.json` — eval suite (every skill has one): `{skill_name, evals: [{id, prompt, expected_output, files}]}`.
 
 ### Referencing bundled files from a SKILL.md
@@ -93,4 +93,4 @@ The existing skills share a deliberate shape worth matching when editing or addi
 - A **"Before Declaring Done" / "Validation"** checklist with the concrete commands to run.
 - For agent-facing skills, a **"Defaults to Resist"** section naming LLM failure modes (reflexive abstraction, stop-when-it-compiles, etc.) — these target Claude's own biases, not a human's.
 
-When two skills overlap, they cross-link via a **"Related Skills"** section rather than duplicating content (e.g. `test-engineering` hands timing concerns off to `optimizing-rust-performance`).
+When two skills overlap, they cross-link via a **"Related Skills"** section rather than duplicating content (e.g. `rust-testing` hands timing concerns off to `rust-performance`).

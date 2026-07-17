@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optimizing Lean Performance"
+  short_description: "Profile Lean, then fix the phase that is actually slow"
+  default_prompt: "Use $lean-performance to profile a slow Lean file and fix the phase that dominates: kernel type checking, typeclass search, elaboration, or the build."

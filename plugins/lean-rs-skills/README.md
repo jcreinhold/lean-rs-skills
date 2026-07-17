@@ -6,12 +6,12 @@ A Codex and Claude Code plugin with generic Rust and Lean 4 craft skills.
 
 | Skill | Use | Agent |
 | --- | --- | --- |
-| `deep-module-design` | Rust/Lean module boundaries and APIs | `pre-design-audit`, `post-design-verify` |
-| `lean-proof-decomposition` | Lean theorem statements and lemma structure | — |
-| `optimizing-rust-performance` | Measured Rust performance work | — |
-| `optimizing-lean-performance` | Lean elaboration, proof, and build cost | — |
-| `test-engineering` | Rust test design and regressions | — |
-| `writing-rust-macros` | Declarative and procedural Rust macros | — |
+| `module-design` | Rust/Lean module boundaries and APIs | `pre-design-audit`, `post-design-verify` |
+| `proof-design` | Lean theorem statements and lemma structure | — |
+| `rust-performance` | Measured Rust performance work | — |
+| `lean-performance` | Lean elaboration, proof, and build cost | — |
+| `rust-testing` | Rust test design and regressions | — |
+| `rust-macros` | Declarative and procedural Rust macros | — |
 
 Skills trigger from their descriptions.
 

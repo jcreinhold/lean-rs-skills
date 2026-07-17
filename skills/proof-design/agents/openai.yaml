@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lean Proof Decomposition"
+  short_description: "Design Lean proof statements and lemma structure"
+  default_prompt: "Use $proof-design to design the statement and lemma structure of this Lean proof before writing tactics."

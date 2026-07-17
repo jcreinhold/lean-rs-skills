@@ -1,0 +1,41 @@
+{
+  "skill_name": "lean-performance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My theorem `add_comm_aux` in `Algebra/Group/Basic.lean` is failing with `(deterministic) timeout at 'whnf', maximum number of heartbeats (200000) has been reached`. Can I just bump maxHeartbeats to 400000 to get it to compile?",
+      "expected_output": "Pushes back on raising maxHeartbeats as the first move, and gives the reason: Mathlib has zero real bumps across 8,245 files and two linters that reject them. Says to profile with `set_option profiler true` and read the cumulative table to find the dominant phase (elaboration, typeclass inference, or type checking), then fix that phase. Does not claim `set_option diagnostics true` reports heartbeats. If a bump is genuinely needed, it must be scoped with `in` and carry a comment; never `maxHeartbeats 0`.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I have a `simp` call in the middle of a proof about list permutations that takes about 8 seconds on its own. How do I make it faster without breaking the proof?",
+      "expected_output": "Recommends confirming with the profiler that `simp` really is the cost, then squeezing the bare `simp` into `simp only [...]` via `simp?`, because bare simp scans the whole lemma database through discrimination trees. Suggests `dsimp` first if the goal has definitional equalities, checking for a simp loop, and committing the explicit lemma list. Explains the why: no database scan, and stable across mathlib versions. May mention `attribute [-simp] ... in` to drop an expensive lemma locally.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Ever since I pulled the latest mathlib, `lake build` on my project takes 20+ minutes even when I've only changed one file. Imports are probably the issue but I'm not sure where to look.",
+      "expected_output": "First says to run `lake exe cache get` after a mathlib pull so precompiled oleans are downloaded rather than rebuilt locally. Then addresses import discipline: import the most specific module instead of a parent barrel, since each unnecessary import drags in transitive instances and simp lemmas. Mentions Lake parallelism and the critical path, and routes to the compilation-and-build reference.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "This one 40-line theorem seems to be most of the compile time for my file (the whole file takes ~20 seconds). It has a bunch of `let` bindings for the objects it works with, then a chain of `have`s, and it ends with a `convert ... using 2` with some `HEq.rfl` fallbacks. I tried replacing the `convert` with something cheaper and it barely helped. What's going on?",
+      "expected_output": "Recognizes that a failed `convert` swap means the cost is not the tactic. Directs the user to `set_option profiler true` and to read the cumulative table, expecting `type checking` (the kernel) to dominate, and to confirm with `-Ddebug.skipKernelTC=true` (a diagnostic only, never committed, since it makes unsound proofs pass). Explains that the kernel re-checks the proof term and ignores `abbrev`/`@[reducible]`/`@[irreducible]`, so only a smaller term helps. Identifies the `let` chain as the likely cause: each `let` is expanded into the proof term and every later `have` type re-embeds it. Recommends hoisting the construction into top-level `def`s with named lemmas, and splitting the theorem into named helper lemmas so the parent's term holds references. Should NOT recommend raising maxHeartbeats, `native_decide`, or `@[irreducible]` as a kernel fix.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "I've got a definition `def widgetData (k : Fin (n+1)) (hk : 0 < k.1) : {W : Widget n k // W.IsProper} := by by_cases hkn : k.1 < n ...` and an `abbrev widget k hk := (widgetData k hk).1` on top of it, both marked `@[expose]`. Every proof downstream starts with `dsimp [widget, widgetData]; simp only [hkn, dif_pos]` before it can do anything. Is this a problem?",
+      "expected_output": "Yes: three compounding shape problems. (1) Data written in tactic mode leaves `Eq.mpr`/motive scaffolding from `by_cases`/`subst` that nothing reduces cheaply — write the body as a term-mode `dite`. (2) `abbrev` is reducible, so the compound body is re-inlined on every definitional-equality check — make it a `def`. (3) `@[expose]` publishes the body across module boundaries so downstream files may unfold it — seal it and export equation lemmas instead. Prescribes proving `widget_of_lt`/`widget_of_not_lt` once and registering any repeated `haveI : C x := by ...` as a real `instance`. Should also say to measure rather than assume this is where the time went: if the profiler blames `type checking`, the fix is proof-term size, not definition shape.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "I have a mutual inductive judgment (a typing relation) with about 30 constructors, and elaboration of the lemmas over it is dominated by typeclass synthesis according to the profiler. What can I do?",
+      "expected_output": "Recommends registering the instance once rather than re-deriving it per proof, using `inferInstanceAs` and `fast_instance%` to keep instance terms canonical, giving broad derived instances low priority, and withholding instances that are true but expensive. Mentions the `type_class: used instances` diagnostics counter as confirmation. Brings in the mutual-inductive guidance: `induction` invokes a recursor carrying one motive per family member, so use `cases` when a case split is all the goal needs, and split oversized mutual blocks. Stresses measuring before and after with `#count_heartbeats in` (with the leading `#`).",
+      "files": []
+    }
+  ]
+}
