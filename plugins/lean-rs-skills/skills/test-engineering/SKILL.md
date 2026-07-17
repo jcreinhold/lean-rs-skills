@@ -1,6 +1,6 @@
 ---
 name: test-engineering
-description: 'Use for Rust tests: regressions, property tests, integration, compile-fail, benchmarks; minimal repros, law-based tests, brittle/slow/shallow suites, wrong-layer scope.'
+description: 'Use for Rust correctness tests: regressions, property tests, integration, compile-fail, minimal repros, law-based tests, brittle or shallow suites, and wrong-layer scope.'
 ---
 
 # Test Engineering

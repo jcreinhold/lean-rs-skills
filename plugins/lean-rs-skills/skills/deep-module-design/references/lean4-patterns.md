@@ -14,3 +14,5 @@
 | Ordering and logic | Keep an order relation or proof separate from domain operations. |
 
 Check that each namespace and non-`private` declaration hides a real decision.
+
+Keep a structure with its expected small instance bundle (`DecidableEq`, projection simp lemmas, or `Repr`) when callers import them as one unit. Split domain logic, serialization, or a heavy proof development that changes on its own. Keep projection aliases `private` unless a caller needs a stable, general name; do not publish many `abbrev`s that only expose representation.

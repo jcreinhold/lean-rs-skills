@@ -6,10 +6,10 @@ A Codex and Claude Code plugin with generic Rust and Lean 4 craft skills.
 
 | Skill | Use | Agent |
 | --- | --- | --- |
-| `deep-module-design` | Rust/Lean boundaries, APIs, and Lean proof decomposition | `pre-design-audit`, `post-design-verify` |
+| `deep-module-design` | Rust/Lean module boundaries and APIs | `pre-design-audit`, `post-design-verify` |
+| `lean-proof-decomposition` | Lean theorem statements and lemma structure | — |
 | `optimizing-rust-performance` | Measured Rust performance work | — |
 | `optimizing-lean-performance` | Lean elaboration, proof, and build cost | — |
-| `technical-writing` | Prose, comments, docs, and exposition | `edit` |
 | `test-engineering` | Rust test design and regressions | — |
 | `writing-rust-macros` | Declarative and procedural Rust macros | — |
 

@@ -1,13 +1,13 @@
 ---
 name: deep-module-design
-description: 'Use for designing Rust/Lean modules, crates, namespaces, or APIs: public/private boundaries, refactoring surface area, facade crates, information hiding, single-implementor traits. Also for designing Lean proofs — theorem/lemma/definition structure, splitting a proof into lemmas, stating theorems the way a mathematician would, proof decomposition and mathematical alignment.'
+description: 'Use for designing Rust/Lean modules, crates, namespaces, or APIs: public/private boundaries, refactoring surface area, facade crates, information hiding, and single-implementor traits.'
 ---
 
 # Deep Module Design
 
 Keep the interface small and concrete. Hide work, layout, and choices that callers should not need.
 
-Read `references/rust-patterns.md` or `references/lean4-patterns.md` for language patterns. For Lean proof design, read `references/lean-proof-decomposition.md`.
+Read `references/rust-patterns.md` or `references/lean4-patterns.md` for language patterns. Use `lean-proof-decomposition` for theorem statements and proof structure.
 
 ## Defaults to Resist
 
@@ -101,23 +101,12 @@ Look for change amplification, too much caller knowledge, and hidden dependencie
 | Public interface mirrors storage | Expose a caller-oriented operation. |
 | Module cannot be named in one sentence | Split or simplify the concern. |
 
-## Lean Proofs
-
-Treat the statement as the interface and the proof as the implementation. Mathematical meaning wins over a software heuristic.
-
-- Fix the statement first: assumptions, object, and comparison kind (`=`, `≅`, `≃`, `⊆`, or `→`).
-- State lemmas for use, not for easy proofs. Each should remove one source of difficulty.
-- Make the top-level proof assemble named lemmas.
-- Check that a quotient, invariant, or forgetful map has not made the statement trivial.
-- A closed goal only shows that Lean accepted the term; check it against the intended mathematics.
-
 ## Before Declaring Done
 
 - [ ] Each new public item, parameter, trait, and error case has a real caller.
 - [ ] No new pass-through method or mixed public concern.
 - [ ] Run `bash skills/deep-module-design/scripts/audit-module.sh <path>`.
 - [ ] Read two or three callers; they are simpler or the added capability justifies the cost.
-- [ ] For Lean proofs: the statement is substantive, lemmas are use-first, and the top level is assembly.
 - [ ] Run `cargo clippy -p <crate>` and `cargo nextest run -p <crate>`, or `lake build`.
 
 ## Dispatch Agents
@@ -130,10 +119,8 @@ Treat the statement as the interface and the proof as the implementation. Mathem
 - `references/design-principles.md` — theory and tradeoffs.
 - `references/rust-patterns.md` — Rust patterns.
 - `references/lean4-patterns.md` — Lean patterns.
-- `references/lean-proof-decomposition.md` — proof design.
 
 ## Related Skills
 
-- `technical-writing` for design prose.
 - `test-engineering` for tests coupled to internals.
-- `lean-proof` for tactic work after proof design.
+- `lean-proof-decomposition` for theorem statements and lemma design.

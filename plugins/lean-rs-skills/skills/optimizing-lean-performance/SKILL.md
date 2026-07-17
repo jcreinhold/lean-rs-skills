@@ -60,10 +60,12 @@ Profile before changing code. Diagnostics report counters, not heartbeats. Do no
 
 ## Do Not
 
-- Raise `maxHeartbeats` instead of finding the cost.
+- Raise `maxHeartbeats` instead of finding the cost. If unavoidable, scope it with `in` and explain it; never set it to `0`.
 - Commit trace, profiler, debug, or display options.
 - Use `native_decide`, `set_option maxHeartbeats 0`, or `debug.skipKernelTC` as a fix.
 - Add a global instance or `@[simp]` lemma for a one-off proof.
+
+Mathlib rejects ordinary proof-file heartbeat bumps; treat a timeout as evidence to profile, not a limit to raise.
 
 ## Before Declaring Done
 

@@ -44,7 +44,7 @@ Every skill lives under `skills/<name>/` and follows the same layout:
 - `SKILL.md` — required. YAML frontmatter (`name`, `description`) + the lean, always-loaded body. The `description` is what triggers the skill, so it must enumerate the concrete situations the skill covers (see existing ones for the pattern: a short purpose clause followed by a comma-separated list of trigger phrases).
 - `references/*.md` — depth loaded on demand. The `SKILL.md` body stays short and links into these for full theory or language-specific patterns. Keep the cognitive load on the body low; push detail down here.
 - `agents/openai.yaml` — every skill has one. Declares `interface.display_name`, `short_description`, and a `default_prompt` that references the skill as `$skill-name`.
-- `agents/*.md` — optional dispatchable sub-agents (only `deep-module-design` and `technical-writing` have these). The `SKILL.md` invokes them by relative path.
+- `agents/*.md` — optional dispatchable sub-agents (currently `deep-module-design` only). The `SKILL.md` invokes them by relative path.
 - `scripts/*.sh` — optional audit/helper scripts (only `deep-module-design` and `test-engineering` have these).
 - `evals/evals.json` — eval suite (every skill has one): `{skill_name, evals: [{id, prompt, expected_output, files}]}`.
 

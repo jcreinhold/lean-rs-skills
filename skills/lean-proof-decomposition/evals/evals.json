@@ -1,0 +1,17 @@
+{
+  "skill_name": "lean-proof-decomposition",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I've got a single Lean 4 theorem whose proof is about 100 lines of tactic mode — nested `rcases`, a couple of long `calc` chains, and a pile of inline `have`s. It compiles, but I can't follow it anymore and neither can my reviewer. How should I restructure it into lemmas?",
+      "expected_output": "A decomposition-first answer that extracts named lemmas by mathematical obstacle, distinguishes milestone propositions from local lemmas and sublemmas, states lemmas for use rather than proof convenience, avoids unused Type* generality and aux names, and makes the top-level proof an outline readable without bodies.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I want to state and prove in Lean 4 that two constructions on my objects are 'the same'. In my notes I wrote `theorem foo_eq : construct A = construct B`, and I can almost close it by rewriting along an equivalence I already have. Is `=` the right thing to state here, and how should I set up the definitions and the theorem?",
+      "expected_output": "A statement-first answer that checks equality versus equivalence or isomorphism, performs a level audit on the exact object, and chooses mathematically recognizable definitions before planning the proof.",
+      "files": []
+    }
+  ]
+}

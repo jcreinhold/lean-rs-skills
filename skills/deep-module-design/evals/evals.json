@@ -36,18 +36,6 @@
       "prompt": "I want a Lean file that defines a structure `Foo`, the `Decidable` instance for its equality, the `simp` lemmas for its projections, and the `Repr` instance, all in one place. My colleague says this complects too much. Is the skill OK with this?",
       "expected_output": "A nuanced answer: data + small instance bundle is normal Lean style and not complecting; the question is whether the file mixes truly independent concerns (e.g., domain logic with serialization, or definitions with a heavy proof development). Recommend keeping the structure + its core instances together, splitting out anything callers wouldn't expect to import as a unit.",
       "files": []
-    },
-    {
-      "id": 7,
-      "prompt": "I've got a single Lean 4 theorem whose proof is about 100 lines of tactic mode — nested `rcases`, a couple of long `calc` chains, and a pile of inline `have`s. It compiles, but I can't follow it anymore and neither can my reviewer. How should I restructure it into lemmas?",
-      "expected_output": "A decomposition-first answer: pull the technical obstacles out as named lemmas so the top-level proof becomes assembly of already-proved facts. It should apply the milestone-proposition vs local-lemma vs sublemma taxonomy (each lemma removing one source of difficulty), state each extracted lemma use-first (natural hypotheses, useful conclusion) rather than for the convenience of the proof, avoid `aux1`/`helper2` naming, and avoid reflexively generalizing lemmas to `Type*` with unused typeclass constraints. It should mention checking the restructured proof reads as mathematics at speed (Leron-test), not merely that it still compiles.",
-      "files": []
-    },
-    {
-      "id": 8,
-      "prompt": "I want to state and prove in Lean 4 that two constructions on my objects are 'the same'. In my notes I wrote `theorem foo_eq : construct A = construct B`, and I can almost close it by rewriting along an equivalence I already have. Is `=` the right thing to state here, and how should I set up the definitions and the theorem?",
-      "expected_output": "A statement-first, mathematical-alignment answer: fix the kind of comparison before the proof. Rewriting along an equivalence is a red flag that the honest relation is isomorphism/equivalence (`≅`/`≃`), not literal equality — claiming `=` is a kind-of-comparison mismatch unless the framework has chosen a strict representative. It should run the level audit (is the claim substantive on the exact objects, or trivial once you pass to a forgetful invariant?), recommend stating the theorem with the correct comparison, and prefer defining the objects the way a mathematician would use them (e.g. via a universal property) over a deeper-but-unrecognizable encoding.",
-      "files": []
     }
   ]
 }

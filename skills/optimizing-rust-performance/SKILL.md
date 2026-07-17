@@ -9,12 +9,13 @@ Measure a real workload, find the bottleneck, make the smallest matching change,
 
 ## Read First
 
-- `references/workflow.md` — every task.
-- `references/repo-surfaces.md` — choose or add measurement support.
-- `references/hotspot-classes.md` — compiler-style hot paths.
-- `references/intervention-patterns.md` — ownership, allocation, layout, hashing, indexing, caching, and branches.
-- `references/benchmark-design.md` — benches and claims.
-- `references/external-lessons.md` — broader Rust practice.
+Read `references/workflow.md` for every task. Then load only the needed reference:
+
+- `repo-surfaces.md` — choose or add measurement support.
+- `hotspot-classes.md` — compiler-style hot paths.
+- `intervention-patterns.md` — ownership, allocation, layout, hashing, indexing, caching, and branches.
+- `benchmark-design.md` — benches and claims.
+- `external-lessons.md` — broader Rust practice.
 
 ## Workflow
 
